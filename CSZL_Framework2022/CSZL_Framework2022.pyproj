@@ -21,6 +21,24 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="CSZLData.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="CSZLDisplay.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="CSZLFeatureEngineering.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="CSZLModel.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="CSZLUtils.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="CSZLWorkflow.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="CSZL_Framework2022.py" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
