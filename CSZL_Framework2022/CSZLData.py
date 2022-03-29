@@ -3,11 +3,13 @@
 import tushare as ts
 import pandas as pd
 import CSZLUtils
+import os
+
 
 import time
 
 
-def catch_exception_log_time(origin_func):
+def decorator_catch_exception(origin_func):
     def wrapper(*args, **kwargs):
         try:
             start = time.time()
@@ -18,13 +20,14 @@ def catch_exception_log_time(origin_func):
             print('time costing:', time.time() - start)
             return u
         except Exception:
+            print('function crash 有可能是设置了全局代理 :%s' % origin_func.__name__)
             return 'an Exception raised.'
     return wrapper
 
 class CSZLData(object):
     """description of class"""
 
-    def __init__(self):
+    def __init__(self,start_date,end_date):
         print("CSZLData init")
         #读取token
         f = open('token.txt')
@@ -32,25 +35,69 @@ class CSZLData(object):
         f.close()
 
         self.pro = ts.pro_api(token)
+        self.start_date=start_date
+        self.end_date=end_date
 
-    
-    @catch_exception_log_time
-    def updatedaily(self,start_date,end_date):
-       
+        self.datez=self.pro.query('trade_cal', start_date=self.start_date, end_date=self.end_date)
+
+    #更新全部数据
+    def update_all(self):
+        self.updatedaily()
+        self.updatedaily_adj_factor()
+        self.updatedaily_long_factor()
+        self.update_stk_limit()
+        self.update_moneyflow()
+
+    #更新日线数据
+    @decorator_catch_exception
+    def updatedaily(self):
+        dfcolumn=pd.DataFrame(columns=('ts_code','trade_date','open','high','low','close','pre_close','change','pct_chg','vol','amount'))
+        self.updatedatas('Dailydata.pkl',dfcolumn,self.pro.daily)
+    @decorator_catch_exception
+    def updatedaily_adj_factor(self):
+        dfcolumn=pd.DataFrame(columns=('ts_code','trade_date','adj_factor'))
+        self.updatedatas('Daily_adj_factor.pkl',dfcolumn,self.pro.adj_factor)
+    @decorator_catch_exception
+    def updatedaily_long_factor(self):
+        dfcolumn=pd.DataFrame(columns=('ts_code','trade_date','turnover_rate','volume_ratio','pe','pb','ps_ttm','dv_ttm','circ_mv','total_mv'))
+        self.updatedatas('Daily_long_factor.pkl',dfcolumn,self._get_daily_basic)
+    def _get_daily_basic(self,trade_date):
+        return self.pro.daily_basic(ts_code='',trade_date=trade_date,fields='ts_code,trade_date,turnover_rate,volume_ratio,pe,pb,ps_ttm,dv_ttm,circ_mv,total_mv')
+    @decorator_catch_exception
+    def update_stk_limit(self):
+        dfcolumn=pd.DataFrame(columns=('trade_date','ts_code','up_limit','down_limit'))
+        self.updatedatas('Daily_stk_limit.pkl',dfcolumn,self._get_stk_limit)
+    def _get_stk_limit(self,trade_date):
+        return self.pro.stk_limit(ts_code='',trade_date=trade_date)
+    @decorator_catch_exception
+    def update_moneyflow(self):
+        dfcolumn=pd.DataFrame(columns=('ts_code','trade_date','buy_sm_vol','buy_sm_amount','sell_sm_vol',
+                                          'sell_sm_amount','buy_md_vol','buy_md_amount','sell_md_vol','sell_md_amount',
+                                          'buy_lg_vol','buy_lg_amount','sell_lg_vol','sell_lg_amount','buy_elg_vol','buy_elg_amount',
+                                          'sell_elg_vol','sell_elg_amount','net_mf_vol','net_mf_amount'))
+        self.updatedatas('Daily_moneyflow.pkl',dfcolumn,self._get_moneyflow)
+    def _get_moneyflow(self,trade_date):
+        return self.pro.moneyflow(ts_code='',trade_date=trade_date)
+
+    #更新数据通用逻辑
+    def updatedatas(self,data_name,dfcolumn,useapi):
+
         CSZLUtils.CSZLUtils.mkdir('./Database')
+        #Dailydata.pkl
+        savepath='./Database/'+data_name
 
         #读取历史数据防止重复
         try:
-            df_test=pd.read_pickle('./Database/Dailydata.pkl')
+            df_test=pd.read_pickle(savepath)
             date_list_old=df_test['trade_date'].unique().astype(str)
 
             xxx=1
         except Exception as e:
             #没有的情况下list为空
             date_list_old=[]
-            df_test=pd.DataFrame(columns=('ts_code','trade_date','open','high','low','close','pre_close','change','pct_chg','vol','amount'))
+            df_test=dfcolumn
 
-        date=self.pro.query('trade_cal', start_date=start_date, end_date=end_date)
+        date=self.datez.copy(deep=True)
 
         date=date[date["is_open"]==1]
         bufferlist=date["cal_date"]
@@ -59,14 +106,14 @@ class CSZLData(object):
         if len(get_list)<2:
             if len(get_list)==1:
                 first_date=get_list[0]
-                df_all=self.pro.daily(trade_date=first_date)
+                df_all=useapi(trade_date=first_date)
             else:
                 return
         else:
             first_date=get_list[0]
             next_date=get_list[1:]
 
-            df_all=self.pro.daily(trade_date=first_date)
+            df_all=useapi(trade_date=first_date)
 
             zcounter=0
             zall=get_list.shape[0]
@@ -78,12 +125,8 @@ class CSZLData(object):
                 while(dec>0):
                     try:
                         time.sleep(1)
-                        df = self.pro.daily(trade_date=singledate)
-                        
+                        df = useapi(trade_date=singledate)                       
                         df_all=pd.concat([df_all,df])
-
-                        #df_last
-                        #print(df_all)
                         break
 
                     except Exception as e:
@@ -101,9 +144,68 @@ class CSZLData(object):
         #688del
         #df_all=df_all[df_all['ts_code'].str.startswith('688')==False]
         #df_all.to_csv('./Database/Dailydata.csv')
-        df_all.to_pickle("./Database/Dailydata.pkl")
-        dsdfsf=1
+        #减少存储，但可能会导致复权数据不准确，所以原始数据不使用
+        #df_all=CSZLUtils.CSZLUtils.reduce_mem_usage(df_all)
+        df_all.to_pickle(savepath)
 
-        print(date)
 
-        asdfasfd=1
+    #生成所有数据集
+    def getDataSet_all(self,folderpath):
+        self.getDataSet(folderpath)
+        self.getDataSet_adj_factor(folderpath)
+        self.getDataSet_long_factor(folderpath)
+        self.getDataSet_stk_limit(folderpath)
+        self.getDataSet_moneyflow(folderpath)
+
+    @decorator_catch_exception
+    def getDataSet(self,folderpath):
+        #这里获取前先直接调用一下下载
+        self.updatedaily()
+        return self.getDataSets(folderpath,'Dailydata')
+    @decorator_catch_exception
+    def getDataSet_adj_factor(self,folderpath):
+        #这里获取前先直接调用一下下载
+        self.updatedaily_adj_factor()
+        return self.getDataSets(folderpath,'Daily_adj_factor')
+    @decorator_catch_exception
+    def getDataSet_long_factor(self,folderpath):
+        #这里获取前先直接调用一下下载
+        self.updatedaily_long_factor()
+        return self.getDataSets(folderpath,'Daily_long_factor')
+    @decorator_catch_exception
+    def getDataSet_stk_limit(self,folderpath):
+        #这里获取前先直接调用一下下载
+        self.update_stk_limit()
+        return self.getDataSets(folderpath,'Daily_stk_limit')
+    @decorator_catch_exception
+    def getDataSet_moneyflow(self,folderpath):
+        #这里获取前先直接调用一下下载
+        self.update_moneyflow()
+        return self.getDataSets(folderpath,'Daily_moneyflow')
+
+    #获取数据集通用逻辑
+    def getDataSets(self,folderpath,savename):
+        #获取某日到某日的数据,并保存到temp中
+        filename=folderpath+savename+self.start_date+'to'+self.end_date+'.csv'
+
+        #检查目录是否存在
+        CSZLUtils.CSZLUtils.mkdir(folderpath)
+        #检查文件是否存在
+        if(os.path.exists(filename)==False):       
+            try:
+                readname='./Database/'+savename+'.pkl'
+                df_get=pd.read_pickle(readname)
+            
+                df_get=df_get[df_get['trade_date']>=int(self.start_date)]
+                df_get=df_get[df_get['trade_date']<=int(self.end_date)]
+                df_get=df_get.reset_index(drop=True)
+                #减少存储(暂时不用在这里)
+                #df_get=CSZLUtils.CSZLUtils.reduce_mem_usage(df_get)
+
+                df_get.to_csv(filename)
+                xxx=1
+                print(savename+'数据集生成完成')
+            except Exception as e:
+                #没有的情况下list为空
+                print("错误，请先调用update下载数据或检查其他问题")
+        return filename
