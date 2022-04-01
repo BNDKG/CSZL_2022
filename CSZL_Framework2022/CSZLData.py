@@ -8,7 +8,7 @@ import os
 
 import time
 
-
+#装饰器用于catch 错误和计算函数执行时间
 def decorator_catch_exception(origin_func):
     def wrapper(*args, **kwargs):
         try:
@@ -19,8 +19,10 @@ def decorator_catch_exception(origin_func):
 
             print('time costing:', time.time() - start)
             return u
-        except Exception:
-            print('function crash 有可能是设置了全局代理 :%s' % origin_func.__name__)
+        except Exception as e:
+            print('function crash 有可能是设置了全局代理 或是调用参数错误 :%s' % origin_func.__name__)
+            print('str(Exception):\t', str(Exception))
+            print('str(e):\t\t', str(e))
             return 'an Exception raised.'
     return wrapper
 
@@ -134,7 +136,7 @@ class CSZLData(object):
                         time.sleep(5-dec)
 
                 if(dec==0):
-                    fsefe=1
+                    pass
 
         df_all=pd.concat([df_all,df_test])
         df_all[["trade_date"]]=df_all[["trade_date"]].astype(int)
