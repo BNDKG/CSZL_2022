@@ -1,6 +1,7 @@
 #coding=utf-8
 
 import CSZLData
+import CSZLUtils
 import pandas as pd
 import numpy as np
 import gc
@@ -41,7 +42,7 @@ class CSZLFeatureEngineering(object):
         savepath7 =self.create_trainingdatasets(self.create_Shiftfeatures,1,savepath5)
 
         funname=sys._getframe().f_code.co_name
-        funpath=self.Default_folder_path+funname+self.start_date+"to"+self.end_date+".csv"
+        funpath=self.Default_folder_path+funname+self.start_date+"to"+self.end_date+".pkl"
 
         savepath8 =self.create_trainingdatasets(self.create_joinfeatures,0,funpath,[savepath,savepath2,savepath3,savepath6,savepath7])
 
@@ -58,10 +59,14 @@ class CSZLFeatureEngineering(object):
         count=0
         for featurename in features:
             if count==0:
-                df=pd.read_csv(featurename,index_col=0,header=0)
+                #df=pd.read_csv(featurename,index_col=0,header=0)
+                df=CSZLUtils.CSZLUtils.Loaddata(featurename)
+                #df=pd.read_pickle(featurename)
                 count+=1
                 continue
-            df2=pd.read_csv(featurename,index_col=0,header=0)
+            #df2=pd.read_csv(featurename,index_col=0,header=0)
+            df2=CSZLUtils.CSZLUtils.Loaddata(featurename)
+            #df2=pd.read_pickle(featurename)
             df=pd.merge(df, df2, how='left', on=['ts_code','trade_date'])
             del df2
             gc.collect()
@@ -203,8 +208,9 @@ class CSZLFeatureEngineering(object):
         #    print("数据集已创建")
         #    return savepath
 
+        df=CSZLUtils.CSZLUtils.Loaddata(dfloadpath)
         #df=pd.read_pickle(dfloadpath)
-        df=pd.read_csv(dfloadpath,index_col=0,header=0)
+        ##df=pd.read_csv(dfloadpath,index_col=0,header=0)
 
         df.sort_values(["trade_date","ts_code"] , inplace=True, ascending=True) 
         df.reset_index(inplace=True,drop=True)
@@ -235,11 +241,12 @@ class CSZLFeatureEngineering(object):
 
         if(args):
             base_name=os.path.splitext(args[1])[0]
-            savepath=base_name+"_"+str(args[0])+".csv"
+            #savepath=base_name+"_"+str(args[0])+".csv"
+            savepath=base_name+"_"+str(args[0])+".pkl"
         else:
             savepath=self.Default_folder_path+filename+self.start_date+"to"+self.end_date+".pkl"
-            savepath=self.Default_folder_path+filename+self.start_date+"to"+self.end_date+".csv"
-        if(os.path.exists(savepath)==True):
+            #savepath=self.Default_folder_path+filename+self.start_date+"to"+self.end_date+".csv"
+        if(os.path.exists(CSZLUtils.CSZLUtils.pathchange(savepath))==True):
             print("数据集已创建")
             return savepath
 
@@ -247,8 +254,10 @@ class CSZLFeatureEngineering(object):
         df=funname(args)
 
         print(df)
-        df.to_csv(savepath)
+        CSZLUtils.CSZLUtils.Savedata(df,savepath)
+        ##df.to_csv(savepath)
         #df.to_pickle(savepath)
+
 
         del df
         gc.collect()
@@ -259,35 +268,35 @@ class CSZLFeatureEngineering(object):
     def LoaddfDailydata(self):
         if(self.dfDailydata.empty):
             loadpath=self.CSZLDataLoader.getDataSet(self.Default_folder_path)
-            self.dfDailydata=pd.read_csv(loadpath,index_col=0,header=0)
+            self.dfDailydata=CSZLUtils.CSZLUtils.Loaddata(loadpath)
 
         return self.dfDailydata
 
     def LoaddfAdj_factor(self):
         if(self.dfAdj_factor.empty):
             loadpath=self.CSZLDataLoader.getDataSet_adj_factor(self.Default_folder_path)
-            self.dfAdj_factor=pd.read_csv(loadpath,index_col=0,header=0)
+            self.dfAdj_factor=CSZLUtils.CSZLUtils.Loaddata(loadpath)
 
         return self.dfAdj_factor
 
     def LoaddfMoneyflow(self):
         if(self.dfMoneyflow.empty):
             loadpath=self.CSZLDataLoader.getDataSet_moneyflow(self.Default_folder_path)
-            self.dfMoneyflow=pd.read_csv(loadpath,index_col=0,header=0)
+            self.dfMoneyflow=CSZLUtils.CSZLUtils.Loaddata(loadpath)
 
         return self.dfMoneyflow
 
     def LoaddfLimit(self):
         if(self.dfLimit.empty):
             loadpath=self.CSZLDataLoader.getDataSet_stk_limit(self.Default_folder_path)
-            self.dfLimit=pd.read_csv(loadpath,index_col=0,header=0)
+            self.dfLimit=CSZLUtils.CSZLUtils.Loaddata(loadpath)
 
         return self.dfLimit
 
     def LoaddfLongfactor(self):
         if(self.dfLongfactor.empty):
             loadpath=self.CSZLDataLoader.getDataSet_long_factor(self.Default_folder_path)
-            self.dfLongfactor=pd.read_csv(loadpath,index_col=0,header=0)
+            self.dfLongfactor=CSZLUtils.CSZLUtils.Loaddata(loadpath)
 
         return self.dfLongfactor
 

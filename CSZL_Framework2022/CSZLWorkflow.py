@@ -2,29 +2,39 @@
 import CSZLData
 import CSZLFeatureEngineering as FE
 import CSZLModel
+import CSZLDisplay
 
 class CSZLWorkflow(object):
     """各种workflow 主要就是back testing"""
 
     def BackTesting(self):
 
-        Default_folder_path='./temp/'
+        #Default_folder_path='./temp/'
+        Default_folder_path='D:/temp2/'
 
         #zzzz=CSZLData.CSZLData("20220101","20220301")
 
         #zzzz.getDataSet_all(Default_folder_path)
 
-        zzzz=FE.CSZLFeatureEngineering("20220101","20220301",Default_folder_path)
-        featurepath=zzzz.FE01()
         zzzz=FE.CSZLFeatureEngineering("20210101","20210301",Default_folder_path)
-        featurepath2=zzzz.FE01()
+        trainpath=zzzz.FE01()
+        zzzz=FE.CSZLFeatureEngineering("20220101","20220301",Default_folder_path)
+        testpath=zzzz.FE01()
+
+        #zzzz=FE.CSZLFeatureEngineering("20170101","20190301",Default_folder_path)
+        #trainpath=zzzz.FE01()
+        #zzzz=FE.CSZLFeatureEngineering("20200101","20220301",Default_folder_path)
+        #testpath=zzzz.FE01()
 
         cur_model=CSZLModel.CSZLModel()
 
-        cur_model_path=cur_model.LGBmodeltrain(featurepath)
+        cur_model_path=cur_model.LGBmodeltrain(trainpath)
 
-        cur_model.LGBmodelpredict(featurepath2,cur_model_path)
+        resultpath=cur_model.LGBmodelpredict(testpath,cur_model_path)
+        resultpath=cur_model.MixOutputresult(cur_model_path)
 
+        curdisplay=CSZLDisplay.CSZLDisplay()
+        curdisplay.Topk_nextopen(resultpath)
 
         pass
 
@@ -35,3 +45,4 @@ class CSZLWorkflow(object):
         zzzz=CSZLData.CSZLData("20220101","20220301")
 
         zzzz.getDataSet_all(Default_folder_path)
+

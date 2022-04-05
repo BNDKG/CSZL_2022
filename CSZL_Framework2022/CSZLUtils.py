@@ -3,9 +3,11 @@
 import os
 import shutil
 import numpy as np
+import pandas as pd
 
 class CSZLUtils(object):
     """description of class"""
+
 
     def mkdir(path):
         """生成文件夹路径"""
@@ -83,3 +85,36 @@ class CSZLUtils(object):
         print('Decreased by {:.1f}%'.format(100 * (start_mem - end_mem) / start_mem))
     
         return df
+
+    def csvmode():
+        return False
+
+    def Loaddata(path):
+
+
+        if(CSZLUtils.csvmode()):
+            changepath=CSZLUtils.pathchange(path)
+            df=pd.read_csv(changepath,index_col=0,header=0)
+        else:
+            df=pd.read_pickle(path)
+
+        return df
+
+    def Savedata(df,path):
+
+        if(CSZLUtils.csvmode()):
+            changepath=CSZLUtils.pathchange(path)
+            df.to_csv(changepath)
+        else:
+            df.to_pickle(path)
+        
+        return
+
+    def pathchange(path):
+
+        if(CSZLUtils.csvmode()):
+            (filepath, tempfilename)=os.path.split(path)
+            (filename, extension) = os.path.splitext(tempfilename)
+            path=filepath+'/'+filename+'.csv'
+
+        return path

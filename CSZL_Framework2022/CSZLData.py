@@ -188,7 +188,8 @@ class CSZLData(object):
     #获取数据集通用逻辑
     def getDataSets(self,folderpath,savename):
         #获取某日到某日的数据,并保存到temp中
-        filename=folderpath+savename+self.start_date+'to'+self.end_date+'.csv'
+        filename=folderpath+savename+self.start_date+'to'+self.end_date+'.pkl'
+        filename=CSZLUtils.CSZLUtils.pathchange(filename)
 
         #检查目录是否存在
         CSZLUtils.CSZLUtils.mkdir(folderpath)
@@ -197,17 +198,42 @@ class CSZLData(object):
             try:
                 readname='./Database/'+savename+'.pkl'
                 df_get=pd.read_pickle(readname)
-            
+                
                 df_get=df_get[df_get['trade_date']>=int(self.start_date)]
                 df_get=df_get[df_get['trade_date']<=int(self.end_date)]
                 df_get=df_get.reset_index(drop=True)
                 #减少存储(暂时不用在这里)
                 #df_get=CSZLUtils.CSZLUtils.reduce_mem_usage(df_get)
 
-                df_get.to_csv(filename)
+                #df_get.to_csv(filename)
+                CSZLUtils.CSZLUtils.Savedata(df_get,filename)
                 xxx=1
                 print(savename+'数据集生成完成')
             except Exception as e:
                 #没有的情况下list为空
                 print("错误，请先调用update下载数据或检查其他问题")
         return filename
+
+    #获取指数行情
+    def get_baseline(basecode='000905.SH'):
+
+        #000001.SH 上证 000016.SH 50 000688.SH 科创50 000905.SH 中证500 399006.SZ 创业板指
+        #399300.SZ 300 000852.SH 1000 
+
+        savedir='./Database/indexdata'
+        #检查目录是否存在
+        CSZLUtils.CSZLUtils.mkdir(savedir)
+
+        f = open('token.txt')
+        token = f.read()     #将txt文件的所有内容读入到字符串str中
+        f.close()
+
+        pro = ts.pro_api(token)
+
+        df = pro.index_daily(ts_code=basecode)
+
+        savepth=savedir+'/'+basecode+'.csv'
+        df.to_csv(savepth)
+
+
+        return savepth
