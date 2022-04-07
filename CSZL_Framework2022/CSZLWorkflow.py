@@ -16,22 +16,22 @@ class CSZLWorkflow(object):
 
         #zzzz.getDataSet_all(Default_folder_path)
 
-        zzzz=FE.CSZLFeatureEngineering("20210101","20210301",Default_folder_path)
-        trainpath=zzzz.FE01()
-        zzzz=FE.CSZLFeatureEngineering("20220101","20220301",Default_folder_path)
-        testpath=zzzz.FE01()
+        zzzz=FE.CSZLFeatureEngineering("20130101","20170301",Default_folder_path)
+        trainpath=zzzz.FE03()
+        zzzz=FE.CSZLFeatureEngineering("20170301","20220301",Default_folder_path)
+        testpath=zzzz.FE03()
 
-        #zzzz=FE.CSZLFeatureEngineering("20170101","20190301",Default_folder_path)
-        #trainpath=zzzz.FE01()
-        #zzzz=FE.CSZLFeatureEngineering("20200101","20220301",Default_folder_path)
-        #testpath=zzzz.FE01()
+        #zzzz=FE.CSZLFeatureEngineering("20190101","20190301",Default_folder_path)
+        #trainpath=zzzz.FE03()
+        #zzzz=FE.CSZLFeatureEngineering("20220101","20220301",Default_folder_path)
+        #testpath=zzzz.FE03()
 
         cur_model=CSZLModel.CSZLModel()
 
         cur_model_path=cur_model.LGBmodeltrain(trainpath)
 
         resultpath=cur_model.LGBmodelpredict(testpath,cur_model_path)
-        resultpath=cur_model.MixOutputresult(cur_model_path)
+        resultpath=cur_model.MixOutputresult(testpath,cur_model_path)
 
         curdisplay=CSZLDisplay.CSZLDisplay()
         curdisplay.Topk_nextopen(resultpath)

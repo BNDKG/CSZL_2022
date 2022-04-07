@@ -49,6 +49,10 @@ class CSZLModel(object):
         df_all=CSZLUtils.CSZLUtils.Loaddata(featurepath)
 
         df_all=df_all[df_all['st_or_otherwrong']==1]
+        df_all=df_all[df_all['high_stop']==0]
+        df_all=df_all[df_all['close']>2]
+        df_all=df_all[df_all['amount']>15000]
+
         df_all.drop(['st_or_otherwrong','real_price'],axis=1,inplace=True)
 
         df_all=df_all.reset_index(drop=True)
@@ -133,8 +137,11 @@ class CSZLModel(object):
 
     def LGBmodelpredict(self,featurepath,modelpath):
 
+        (filepath, tempfilename)=os.path.split(featurepath)
+        (filename, extension) = os.path.splitext(tempfilename)
+
         modelname=modelpath+'_0.pkl'
-        predictname=modelpath+'_0_predict.pkl'
+        predictname=modelpath+'_'+filename+'_0.pkl'
 
         if(os.path.exists(predictname)==True):
             print("预测结果已生成")
@@ -151,7 +158,7 @@ class CSZLModel(object):
 
         for counter in range(4):
             modelpath_new=modelpath+'_'+str(counter)+".pkl"
-            predictpath_new=modelpath+'_'+str(counter)+"_predict.pkl"
+            predictpath_new=modelpath+'_'+filename+'_'+str(counter)+".pkl"
 
             lgb_model = joblib.load(modelpath_new)
 
@@ -173,9 +180,12 @@ class CSZLModel(object):
         return predictname
 
 
-    def MixOutputresult(self,modelpath):
+    def MixOutputresult(self,featurepath,modelpath):
 
-        predictname=modelpath+'_result.csv'
+        (filepath, tempfilename)=os.path.split(featurepath)
+        (filename, extension) = os.path.splitext(tempfilename)
+
+        predictname=modelpath+'_'+filename+'_result.csv'
 
         if(os.path.exists(predictname)==True):
             print("合成预测结果已生成")
@@ -185,7 +195,7 @@ class CSZLModel(object):
         resultdf=[]
         for counter in range(4):
 
-            predictpath_new=modelpath+'_'+str(counter)+"_predict.pkl"
+            predictpath_new=modelpath+'_'+filename+'_'+str(counter)+".pkl"
 
             data1=pd.read_pickle(predictpath_new)
 

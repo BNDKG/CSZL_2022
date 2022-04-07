@@ -126,7 +126,7 @@ class CSZLData(object):
                 dec=5
                 while(dec>0):
                     try:
-                        time.sleep(1)
+                        time.sleep(0.2)
                         df = useapi(trade_date=singledate)                       
                         df_all=pd.concat([df_all,df])
                         break

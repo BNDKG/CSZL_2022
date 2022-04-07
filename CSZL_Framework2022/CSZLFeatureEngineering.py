@@ -28,14 +28,14 @@ class CSZLFeatureEngineering(object):
 
         pass
 
-    def FE01(self):
+    def FE03(self):
 
 
         savepath =self.create_trainingdatasets(self.create_target)
         savepath2 =self.create_trainingdatasets(self.create_Limitfeature)
-        savepath3 =self.create_trainingdatasets(self.create_dayfeature)
+        savepath3 =self.create_trainingdatasets(self.create_dayfeature3)
         savepath4 =self.create_trainingdatasets(self.create_Longfeature)
-        savepath5 =self.create_trainingdatasets(self.create_Moneyflowfeature)
+        savepath5 =self.create_trainingdatasets(self.create_Moneyflowfeature2)
 
         #函数名，区别数字(例如shift 1 就填入1)，区别函数(例如 Moneyflowpath)
         savepath6 =self.create_trainingdatasets(self.create_Shiftfeatures,1,savepath4)
@@ -97,7 +97,7 @@ class CSZLFeatureEngineering(object):
 
         return df
 
-    def create_dayfeature(self,arges):
+    def create_dayfeature3(self,arges):
 
         df=self.LoaddfDailydata().copy(deep=True)
         df2=self.LoaddfAdj_factor().copy(deep=True)
@@ -106,7 +106,52 @@ class CSZLFeatureEngineering(object):
 
         df['real_price']=df['close']*df['adj_factor']
 
-        df=df[["ts_code","trade_date","real_price"]]
+        df=df[["ts_code","trade_date","real_price","open","high","low","pct_chg","pre_close","close","amount"]]
+
+        df['high_stop']=0
+        df.loc[df['pct_chg']>9.4,'high_stop']=1
+
+        df['chg_rank']=df.groupby('trade_date')['pct_chg'].rank(pct=True)
+        df['pct_chg_abs']=df['pct_chg'].abs()
+        df['pct_chg_abs_rank']=df.groupby('trade_date')['pct_chg_abs'].rank(pct=True)
+
+        #计算三种比例rank
+        dolist=['open','high','low']
+
+        df['pct_chg_r']=df['pct_chg']
+
+        for curc in dolist:
+            buffer=((df[curc]-df['pre_close'])*100)/df['pre_close']
+            df[curc]=buffer
+            df[curc]=df.groupby('trade_date')[curc].rank(pct=True)
+
+        print(df)
+
+        df=self.OldFeaturesRank(df,['open','high','low','pct_chg_r'],1)
+
+        df=self.InputChgSumRank(df,6,'pct_chg_abs')
+        df=self.InputChgSumRank(df,3,'pct_chg')
+        df=self.InputChgSumRank(df,6,'pct_chg')
+        df=self.InputChgSumRank(df,12,'pct_chg')
+        df=self.InputChgSumRank(df,24,'pct_chg')
+
+        df=self.InputChgSum(df,3,'pct_chg')
+        df=self.InputChgSum(df,6,'pct_chg')
+        df=self.InputChgSum(df,12,'pct_chg')
+        df=self.InputChgSum(df,24,'pct_chg')
+
+        #df['chg_rank_24_diff']=df['chg_rank_24']-df['chg_rank_12']
+        #df['chg_rank_12_diff']=df['chg_rank_12']-df['chg_rank_6']
+        #df['chg_rank_6_diff']=df['chg_rank_6']-df['chg_rank_3']
+
+        #df['pct_chg_24_diff']=df['pct_chg_24']-df['pct_chg_12']
+        #df['pct_chg_12_diff']=df['pct_chg_12']-df['pct_chg_6']
+        #df['pct_chg_6_diff']=df['pct_chg_6']-df['pct_chg_3']
+
+        df=self.HighLowRange(df,5)
+        df=self.HighLowRange(df,12)
+        df=self.HighLowRange(df,25)
+
 
         df=self.CloseWithHighLow(df,5)
         df=self.CloseWithHighLow(df,12)
@@ -115,12 +160,24 @@ class CSZLFeatureEngineering(object):
         df=self.CloseWithHighLow(df,12,'max')
         df=self.CloseWithHighLow(df,25,'max')
 
+        #df['25_pct_rank_min_diff']=df['25_pct_rank_min']-df['12_pct_rank_min']
+        #df['12_pct_rank_min_diff']=df['12_pct_rank_min']-df['5_pct_rank_min']
+
+        #df['25_pct_rank_max_diff']=df['25_pct_rank_max']-df['12_pct_rank_max']
+        #df['12_pct_rank_max_diff']=df['12_pct_rank_max']-df['5_pct_rank_max']
+
+        #df['25_pct_Rangerank_diff']=df['25_pct_Rangerank']-df['12_pct_Rangerank']
+        #df['12_pct_Rangerank_diff']=df['12_pct_Rangerank']-df['5_pct_Rangerank']
+
+
+        #df.to_csv("dfsdf")
+
         del df2
         gc.collect()
         
         return df
 
-    def create_Moneyflowfeature(self,arges):
+    def create_Moneyflowfeature2(self,arges):
 
         df=self.LoaddfMoneyflow().copy(deep=True)
 
@@ -140,19 +197,22 @@ class CSZLFeatureEngineering(object):
         #df['lg_amount']=df.groupby('ts_code')['lg_amount'].shift(1)
         #df['net_mf_amount']=df.groupby('ts_code')['net_mf_amount'].shift(1)
 
-        df=self.InputChgSum(df,5,'sm_amount')
-        df=self.InputChgSum(df,5,'lg_amount')
-        df=self.InputChgSum(df,5,'net_mf_amount')
+        df=self.InputChgSumRank(df,5,'sm_amount')
+        df=self.InputChgSumRank(df,5,'lg_amount')
+        df=self.InputChgSumRank(df,5,'net_mf_amount')
 
-        df=self.InputChgSum(df,12,'sm_amount')
-        df=self.InputChgSum(df,12,'lg_amount')
-        df=self.InputChgSum(df,12,'net_mf_amount')
+        df=self.InputChgSumRank(df,12,'sm_amount')
+        df=self.InputChgSumRank(df,12,'lg_amount')
+        df=self.InputChgSumRank(df,12,'net_mf_amount')
 
-        df=self.InputChgSum(df,25,'sm_amount')
-        df=self.InputChgSum(df,25,'lg_amount')
-        df=self.InputChgSum(df,25,'net_mf_amount')
+        df=self.InputChgSumRank(df,25,'sm_amount')
+        df=self.InputChgSumRank(df,25,'lg_amount')
+        df=self.InputChgSumRank(df,25,'net_mf_amount')
 
-        
+        df=self.OldFeaturesRank(df,['sm_amount','lg_amount','net_mf_amount'],1)
+        df=self.OldFeaturesRank(df,['sm_amount','lg_amount','net_mf_amount'],2)
+
+
         return df
 
     def create_Limitfeature(self,arges):
@@ -325,10 +385,10 @@ class CSZLFeatureEngineering(object):
 
         return df_all
 
-    def InputChgSum(self,df_all,days,sumlinename,intflag=False):
+    def InputChgSum(self,df_all,days,sumlinename):
 
         bufferbak='_'+str(days)
-        stringdisplay=sumlinename+'_'+str(days)
+        #stringdisplay=sumlinename+'_'+str(days)
 
         xxx=df_all.groupby('ts_code')[sumlinename].rolling(days).sum().reset_index()
         xxx.set_index(['level_1'], drop=True, append=False, inplace=True, verify_integrity=False)
@@ -338,6 +398,21 @@ class CSZLFeatureEngineering(object):
 
         #TODO这里可能不用rank会好一点
         #df_all[stringdisplay]=df_all.groupby('trade_date')[stringdisplay].rank(pct=True)
+
+        return df_all
+
+    def InputChgSumRank(self,df_all,days,sumlinename):
+
+        bufferbak='_Rank_'+str(days)
+        stringdisplay=sumlinename+'_Rank_'+str(days)
+
+        xxx=df_all.groupby('ts_code')[sumlinename].rolling(days).sum().reset_index()
+        xxx.set_index(['level_1'], drop=True, append=False, inplace=True, verify_integrity=False)
+        xxx.drop(['ts_code'],axis=1,inplace=True)
+
+        df_all=df_all.join(xxx, lsuffix='', rsuffix=bufferbak)
+
+        df_all[stringdisplay]=df_all.groupby('trade_date')[stringdisplay].rank(pct=True)
 
         return df_all
 
@@ -354,4 +429,37 @@ class CSZLFeatureEngineering(object):
 
         return df_all
 
+    def HighLowRange(self,df_all,days):
+        #输入几日和最高或最低返回排名
+        #30日最低比值
 
+        stringdisplay=str(days)+'_pct_Rangerank'
+
+        xxx=df_all.groupby('ts_code')['real_price'].rolling(days).min().reset_index()     
+        xxx.set_index(['level_1'], drop=True, append=False, inplace=True, verify_integrity=False)
+        xxx.drop(['ts_code'],axis=1,inplace=True)       
+
+        df_all=df_all.join(xxx, lsuffix='', rsuffix='_30min')
+
+
+        xxx=df_all.groupby('ts_code')['real_price'].rolling(days).max().reset_index()
+        xxx.set_index(['level_1'], drop=True, append=False, inplace=True, verify_integrity=False)
+        xxx.drop(['ts_code'],axis=1,inplace=True)       
+
+        df_all=df_all.join(xxx, lsuffix='', rsuffix='_30max')
+        #bbb=df_all.groupby('ts_code')['real_price'].agg({'all_min':np.min, 'all_max': np.max}).reset_index()
+        #ccc=pd.merge(df_all, bbb, how='inner', on=['ts_code'])
+        df_all['30_pct']=(100*(df_all['real_price_30max']+0.001-df_all['real_price_30min']))/df_all['real_price_30min']
+        df_all[stringdisplay]=df_all.groupby('trade_date')['30_pct'].rank(pct=True)
+
+        df_all.drop(['30_pct','real_price_30min','real_price_30max'],axis=1,inplace=True)
+
+        return df_all
+
+    def OldFeaturesRank(self,df_all,features,daybak):
+      
+        for curfeature in features:
+            curstring='yesterday_'+str(daybak)+curfeature
+            df_all[curstring]=df_all.groupby('ts_code')[curfeature].shift(daybak)
+
+        return df_all

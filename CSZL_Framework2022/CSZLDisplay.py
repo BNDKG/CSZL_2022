@@ -33,8 +33,8 @@ class CSZLDisplay(object):
 
         #hold_all=5
         #change_num=1
-        hold_all=100
-        change_num=20
+        hold_all=15
+        change_num=3
         account=100000000
         accountbase=account
         buy_pct=0.9
