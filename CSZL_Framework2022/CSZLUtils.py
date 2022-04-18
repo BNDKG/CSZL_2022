@@ -92,7 +92,7 @@ class CSZLUtils(object):
     def Loaddata(path):
 
 
-        if(CSZLUtils.csvmode()):
+        if CSZLUtils.csvmode():
             changepath=CSZLUtils.pathchange(path)
             df=pd.read_csv(changepath,index_col=0,header=0)
         else:
@@ -102,7 +102,7 @@ class CSZLUtils(object):
 
     def Savedata(df,path):
 
-        if(CSZLUtils.csvmode()):
+        if CSZLUtils.csvmode():
             changepath=CSZLUtils.pathchange(path)
             df.to_csv(changepath)
         else:
@@ -112,7 +112,7 @@ class CSZLUtils(object):
 
     def pathchange(path):
 
-        if(CSZLUtils.csvmode()):
+        if CSZLUtils.csvmode():
             (filepath, tempfilename)=os.path.split(path)
             (filename, extension) = os.path.splitext(tempfilename)
             path=filepath+'/'+filename+'.csv'

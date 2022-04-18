@@ -44,12 +44,66 @@ class CSZLFeatureEngineering(object):
         funname=sys._getframe().f_code.co_name
         funpath=self.Default_folder_path+funname+self.start_date+"to"+self.end_date+".pkl"
 
+        #savepath8 =self.create_trainingdatasets(self.create_joinfeatures,0,funpath,[savepath,savepath2,savepath3,savepath6,savepath7])
         savepath8 =self.create_trainingdatasets(self.create_joinfeatures,0,funpath,[savepath,savepath2,savepath3,savepath6,savepath7])
+
 
         #self.create_Shiftfeatures(mpath,"Moneyflow",1)
         #self.create_Shiftfeatures(lpath,"Longfeature",1)
 
         return savepath8
+
+    def FE04(self):
+
+
+        savepath =self.create_trainingdatasets(self.create_target)
+        savepath2 =self.create_trainingdatasets(self.create_Limitfeature)
+        savepath3 =self.create_trainingdatasets(self.create_dayfeature3)
+        savepath4 =self.create_trainingdatasets(self.create_Longfeature)
+        savepath5 =self.create_trainingdatasets(self.create_Moneyflowfeature2)
+
+        #函数名，区别数字(例如shift 1 就填入1)，区别函数(例如 Moneyflowpath)
+        savepath6 =self.create_trainingdatasets(self.create_Shiftfeatures,1,savepath4)
+        savepath7 =self.create_trainingdatasets(self.create_Shiftfeatures,1,savepath5)
+
+        funname=sys._getframe().f_code.co_name
+        funpath=self.Default_folder_path+funname+self.start_date+"to"+self.end_date+".pkl"
+
+        #savepath8 =self.create_trainingdatasets(self.create_joinfeatures,0,funpath,[savepath,savepath2,savepath3,savepath6,savepath7])
+        savepath8 =self.create_trainingdatasets(self.create_joinfeatures,0,funpath,[savepath,savepath2,savepath3])
+
+
+        #self.create_Shiftfeatures(mpath,"Moneyflow",1)
+        #self.create_Shiftfeatures(lpath,"Longfeature",1)
+
+        return savepath8
+
+    def FE03_real(self,date):
+
+        #20220415
+        df_dayfeature =self.create_dayfeature3(date)
+        #print(df_featured)
+
+        df_limit =self.create_Limitfeature(date)
+
+        df_long =self.create_Longfeature(date)
+        df_money =self.create_Moneyflowfeature2(date)
+
+        #函数名，区别数字(例如shift 1 就填入1)，区别函数(例如 Moneyflowpath)
+        df_shift_long=self.create_Shiftfeatures([-1,df_long])
+        df_shift_money=self.create_Shiftfeatures([-1,df_money])
+
+
+        df_joinfeature=self.create_joinfeatures_real([df_dayfeature,df_limit,df_shift_long,df_shift_money])
+
+        finalday=df_joinfeature['trade_date'].max()
+        df_joinfeature=df_joinfeature[df_joinfeature['trade_date']==finalday]
+        print(df_joinfeature)
+
+        df_joinfeature.to_csv("Today_Joinfeature.csv")
+
+
+        return df_joinfeature
 
     def create_joinfeatures(self,arges):
 
@@ -76,11 +130,35 @@ class CSZLFeatureEngineering(object):
 
         return df
 
+    def create_joinfeatures_real(self,features):
+
+        df=[]
+        count=0
+        for df_feature in features:
+            if count==0:
+                #df=pd.read_csv(featurename,index_col=0,header=0)
+                df=df_feature
+                #df=pd.read_pickle(featurename)
+                count+=1
+                continue
+            #df2=pd.read_csv(featurename,index_col=0,header=0)
+            df2=df_feature
+            #df2=pd.read_pickle(featurename)
+            df=pd.merge(df, df2, how='left', on=['ts_code','trade_date'])
+            del df2
+            gc.collect()
+            count+=1
+
+        df=df.replace(np.nan, 0)
+
+        return df
+
     ######创建每种特征的数据集，返回文件名
     def create_target(self,arges):
 
         df=self.LoaddfDailydata().copy(deep=True)
         df2=self.LoaddfAdj_factor().copy(deep=True)
+
 
         df=pd.merge(df, df2, how='inner', on=['ts_code','trade_date'])
 
@@ -101,6 +179,25 @@ class CSZLFeatureEngineering(object):
 
         df=self.LoaddfDailydata().copy(deep=True)
         df2=self.LoaddfAdj_factor().copy(deep=True)
+
+        if arges:
+
+            loadpath="real_buffer.csv"
+            df_today=pd.read_csv(loadpath,index_col=0,header=0)
+            df_today['trade_date']=arges
+
+            df['ts_code']=df['ts_code'].apply(lambda x : x[:-3])
+            df_today['ts_code']=df_today['ts_code'].apply(lambda x:str(x).zfill(6))
+
+            df = df.append(df_today, ignore_index=True)
+
+            lastday=df2['trade_date'].max()
+            df2['ts_code']=df2['ts_code'].apply(lambda x : x[:-3])
+            copy_df=df2[df2['trade_date']==lastday]
+            copy_df['trade_date']=arges
+            df2 = df2.append(copy_df, ignore_index=True)
+
+
 
         df=pd.merge(df, df2, how='inner', on=['ts_code','trade_date'])
 
@@ -125,7 +222,7 @@ class CSZLFeatureEngineering(object):
             df[curc]=buffer
             df[curc]=df.groupby('trade_date')[curc].rank(pct=True)
 
-        print(df)
+        #print(df)
 
         df=self.OldFeaturesRank(df,['open','high','low','pct_chg_r'],1)
 
@@ -185,6 +282,14 @@ class CSZLFeatureEngineering(object):
         df.drop(['buy_elg_vol','buy_elg_amount','sell_elg_vol','sell_elg_amount','net_mf_vol'],axis=1,inplace=True)
         df.drop(['buy_md_amount','sell_md_amount'],axis=1,inplace=True)
 
+        if arges:
+
+            lastday=df['trade_date'].max()
+            df['ts_code']=df['ts_code'].apply(lambda x : x[:-3])
+            copy_df=df[df['trade_date']==lastday]
+            copy_df['trade_date']=arges
+            df = df.append(copy_df, ignore_index=True)
+
         df['sm_amount']=df['buy_sm_amount']-df['sell_sm_amount']
         df['lg_amount']=df['buy_lg_amount']-df['sell_lg_amount']
 
@@ -219,6 +324,15 @@ class CSZLFeatureEngineering(object):
 
         df=self.LoaddfLimit().copy(deep=True)
 
+        if arges:
+
+            lastday=df['trade_date'].max()
+            df['ts_code']=df['ts_code'].apply(lambda x : x[:-3])
+            copy_df=df[df['trade_date']==lastday]
+            copy_df['trade_date']=arges
+            df = df.append(copy_df, ignore_index=True)
+
+
         df['limit_percent']=df['down_limit']/df['up_limit']
 
         #是否st或其他
@@ -232,6 +346,14 @@ class CSZLFeatureEngineering(object):
     def create_Longfeature(self,arges):
 
         df=self.LoaddfLongfactor().copy(deep=True)
+
+        if arges:
+
+            lastday=df['trade_date'].max()
+            df['ts_code']=df['ts_code'].apply(lambda x : x[:-3])
+            copy_df=df[df['trade_date']==lastday]
+            copy_df['trade_date']=arges
+            df = df.append(copy_df, ignore_index=True)
 
         df.drop(['turnover_rate','volume_ratio','pe','dv_ttm'],axis=1,inplace=True)
 
@@ -267,8 +389,12 @@ class CSZLFeatureEngineering(object):
         #if(os.path.exists(savepath)==True):
         #    print("数据集已创建")
         #    return savepath
-
-        df=CSZLUtils.CSZLUtils.Loaddata(dfloadpath)
+        df=[]
+        if shift<0:
+            shift=-shift
+            df=dfloadpath
+        else:
+            df=CSZLUtils.CSZLUtils.Loaddata(dfloadpath)
         #df=pd.read_pickle(dfloadpath)
         ##df=pd.read_csv(dfloadpath,index_col=0,header=0)
 
@@ -279,10 +405,10 @@ class CSZLFeatureEngineering(object):
         #删除前两个字段
         colnames.pop(0)
         colnames.pop(0)
-        print(colnames)
+        #print(colnames)
 
         for curfeature in colnames:
-            curstring='yesterday_'+str(shift)+curfeature
+            curstring='Shift_'+str(shift)+curfeature
             df[curstring]=df.groupby('ts_code')[curfeature].shift(shift)
             df.drop([curfeature],axis=1,inplace=True)
 
@@ -313,7 +439,7 @@ class CSZLFeatureEngineering(object):
         
         df=funname(args)
 
-        print(df)
+        #print(df)
         CSZLUtils.CSZLUtils.Savedata(df,savepath)
         ##df.to_csv(savepath)
         #df.to_pickle(savepath)

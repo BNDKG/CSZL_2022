@@ -5,7 +5,7 @@ import pandas as pd
 import CSZLUtils
 import os
 
-
+import random
 import time
 
 #装饰器用于catch 错误和计算函数执行时间
@@ -214,6 +214,115 @@ class CSZLData(object):
                 print("错误，请先调用update下载数据或检查其他问题")
         return filename
 
+
+class CSZLDataWithoutDate(object):
+
+
+    def get_realtime_quotes(Default_folder_path,startdate,enddate):
+        DataLoader=CSZLData(startdate,enddate)
+
+        loadpath=DataLoader.getDataSet(Default_folder_path)
+        dfDailydata_realtime=CSZLUtils.CSZLUtils.Loaddata(loadpath)
+
+        codelistbuffer=dfDailydata_realtime['ts_code']
+        codelistbuffer=codelistbuffer.unique()
+
+        codelist=codelistbuffer.tolist()
+
+        CSZLDataWithoutDate.get_realtime_quotes_withlist(codelist)
+
+    def get_realtime_quotes_withlist(codelist):
+
+        code_counter=0
+        bufferlist=[]
+        df_real=[]
+
+        printcounter=0.0
+
+        for curcode in codelist:
+
+            curcode_str=curcode[:-3]
+
+            #curcode_str=str(curcode).zfill(6)
+            bufferlist.append(curcode_str)
+            code_counter+=1
+            if(code_counter>=500):
+                if(len(df_real)):
+                    wrongcounter=0
+                    while(1):
+                        try:
+                            df_real2=[]
+                            df_real2=ts.get_realtime_quotes(bufferlist)
+                            df_real=df_real.append(df_real2)
+                            break
+                        except Exception as e:
+                            sleeptime2=random.randint(100,199)
+                            time.sleep(sleeptime2/40)
+                            wrongcounter+=1
+                            if(wrongcounter>10):
+                                break
+                else:
+                    #df_real=ts.get_realtime_quotes(bufferlist)
+                    wrongcounter=0
+                    while(1):
+                        try:
+                            df_real=ts.get_realtime_quotes(bufferlist)
+                            break
+                        except Exception as e:
+                            sleeptime2=random.randint(100,199)
+                            time.sleep(sleeptime2/40)
+                            wrongcounter+=1
+                            if(wrongcounter>10):
+                                break
+                bufferlist=[]            
+                code_counter=0
+                sleeptime=random.randint(100,199)
+                time.sleep(sleeptime/40)
+                print(printcounter/len(codelist))
+
+            printcounter+=1
+        time.sleep(2)
+        if(len(bufferlist)):
+            wrongcounter=0
+            while(1):
+                try:
+                    df_real2=[]
+                    df_real2=ts.get_realtime_quotes(bufferlist)
+                    df_real=df_real.append(df_real2)
+                    break
+                except Exception as e:
+                    sleeptime2=random.randint(100,199)
+                    time.sleep(sleeptime2/40)
+                    wrongcounter+=1
+                    if(wrongcounter>10):
+                        break
+
+
+
+        #'tomorrow_chg'
+        df_real.drop(['name','bid','ask','volume','b1_v','b2_v','b3_v','b4_v','b5_v','b1_p','b2_p','b3_p','b4_p','b5_p'],axis=1,inplace=True)
+        df_real.drop(['a1_v','a2_v','a3_v','a4_v','a5_v','a1_p','a2_p','a3_p','a4_p','a5_p'],axis=1,inplace=True)
+        df_real.drop(['time'],axis=1,inplace=True)
+
+        df_real['amount'] = df_real['amount'].apply(float)
+        df_real['amount']=df_real['amount']/1000
+
+        #df[txt] = df[txt].map(lambda x : x[:-2])
+
+        df_real['date']=df_real['date'].map(lambda x : x[:4]+x[5:7]+x[8:10])
+    
+        df_real['price'] = df_real['price'].apply(float)
+        df_real['pre_close'] = df_real['pre_close'].apply(float)
+
+        df_real['pct_chg']=(df_real['price']-df_real['pre_close'])*100/(df_real['pre_close'])
+
+
+        df_real=df_real.rename(columns={'price':'close','date':'trade_date','code':'ts_code'})
+
+        df_real.to_csv("real_buffer.csv")
+
+
+
     #获取指数行情
     def get_baseline(basecode='000905.SH'):
 
@@ -237,3 +346,4 @@ class CSZLData(object):
 
 
         return savepth
+

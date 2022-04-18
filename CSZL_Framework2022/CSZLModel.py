@@ -27,7 +27,7 @@ class CSZLModel(object):
 
         #基于使用的模块生成文件名
         pklname=modelfolder+'/'+sys._getframe().f_code.co_name
-        lgb_model,pklname=self.LGBmodel_001(pklname)
+        lgb_model,pklname=self.LGBmodel_003(pklname)
         checkpath=pklname+'_0.pkl'
 
         featurepath=CSZLUtils.CSZLUtils.pathchange(featurepath)
@@ -63,12 +63,30 @@ class CSZLModel(object):
 
         return x_train,y_train,train_label
 
-    def LGBmodel_001(self,pklname):
+    def LGBdatasetrealpredictprepar(self,featurepath):
+
+        df_all=pd.read_csv(featurepath,index_col=0,header=0)
+
+        df_all=df_all[df_all['st_or_otherwrong']==1]
+        df_all=df_all[df_all['high_stop']==0]
+        df_all=df_all[df_all['close']>2]
+        df_all=df_all[df_all['amount']>15000]
+
+        df_all.drop(['st_or_otherwrong','real_price'],axis=1,inplace=True)
+
+        df_all=df_all.reset_index(drop=True)
+        
+        train_label=df_all[['ts_code','trade_date']]
+        x_train=df_all.drop(['ts_code','trade_date'],axis=1)
+
+        return x_train,train_label
+
+    def LGBmodel_003(self,pklname):
 
         pklname=pklname+sys._getframe().f_code.co_name
 
         lgb_model = lgb.LGBMClassifier(max_depth=-1,
-                                        n_estimators=300,
+                                        n_estimators=250,
                                         learning_rate=0.05,
                                         num_leaves=2**8-1,
                                         colsample_bytree=0.6,
@@ -80,6 +98,33 @@ class CSZLModel(object):
 
         return lgb_model,pklname
 
+    def LGBmodel_sum20(self,pklname):
+
+        pklname=pklname+sys._getframe().f_code.co_name
+
+        #lightgbm训练的参数：注意，上面的（**params）中的**必须写
+        params = {
+        'boosting_type': 'gbdt',
+        'objective':'regression',
+        #'n_jobs':8,
+        'subsample': 0.5,
+        'subsample_freq': 1,
+        'learning_rate': 0.05,
+        'num_leaves': 2**8-1,
+        'min_data_in_leaf': 2**9-1,
+        'feature_fraction': 0.5,
+        'max_bin': 100,
+        'n_estimators': 250,
+        'boost_from_average': False,
+        "random_seed":1,
+        }
+        lgb_model = lgb.LGBMRegressor(**params)
+        #model.fit(x_train, y_train, 
+        #    eval_set=[(x_valid, y_valid)],  
+        #    early_stopping_rounds=verbose, 
+        #    verbose=verbose)
+
+        return lgb_model,pklname
 
     def split_dataset_and_train(self,train,y_train,pklname,usemodel):
 
@@ -143,13 +188,20 @@ class CSZLModel(object):
         modelname=modelpath+'_0.pkl'
         predictname=modelpath+'_'+filename+'_0.pkl'
 
-        if(os.path.exists(predictname)==True):
+        if os.path.exists(predictname)==True and featurepath!="Today_Joinfeature.csv":
+            #result=pd.read_pickle(predictname)
+            #result.to_csv("resultsee2.csv")
+
             print("预测结果已生成")
             return predictname
 
+        if featurepath=="Today_Joinfeature.csv":
+            x_train,train_label=self.LGBdatasetrealpredictprepar(featurepath)
+        else:
+            x_train,_,train_label=self.LGBdatasetprepar(featurepath)
 
-        x_train,y_train,train_label=self.LGBdatasetprepar(featurepath)
 
+        #x_train.to_csv("trainsee2.csv")
         #finaldf = pd.merge(train_label, x_train, how='left', left_index=True, right_index=True) 
         #print(finaldf)
 
@@ -178,7 +230,6 @@ class CSZLModel(object):
 
 
         return predictname
-
 
     def MixOutputresult(self,featurepath,modelpath):
 
@@ -225,3 +276,185 @@ class CSZLModel(object):
         resultdf.to_csv(predictname)
 
         return predictname
+
+    def MixOutputresult_groupbalence(self,featurepath,modelpath,real_predict=False):
+
+        (filepath, tempfilename)=os.path.split(featurepath)
+        (filename, extension) = os.path.splitext(tempfilename)
+
+        predictname=modelpath+'_'+filename+'_result.csv'
+
+        if(real_predict):
+            mixdf=pd.read_csv(featurepath,index_col=0,header=0)
+        else:
+            mixdf=pd.read_pickle(featurepath)
+        print(mixdf)
+        mixdf=mixdf[['ts_code','trade_date','Shift_1total_mv_rank']]
+        print(mixdf)
+
+        if os.path.exists(predictname)==True and (not real_predict):
+            #mixdf=pd.read_csv(predictname,index_col=0,header=0)
+            #print(mixdf)
+
+            print("合成预测结果已生成")
+            return predictname
+
+
+        resultdf=[]
+        for counter in range(4):
+
+            predictpath_new=modelpath+'_'+filename+'_'+str(counter)+".pkl"
+
+            data1=pd.read_pickle(predictpath_new)
+
+            #print(data1)
+
+            data1['mix']=0
+
+            multlist=[-9.34,-5.48,-4.2,-3.4,-2.7,-2.3,-1.86,-1.47,-1.09,-0.74,-0.38,0,0.398,0.838,1.35,1.96,2.74,3.81,5.58,10.77]
+
+            for i in range(20):
+                buffer=data1[i]*multlist[i]
+                data1['mix']=data1['mix']+buffer
+
+            data1['mix_rank']=data1.groupby('trade_date')['mix'].rank(ascending=True,pct=True,method='first')
+
+            #print(data1)
+
+            if(counter==0):
+                resultdf=data1
+            else:
+                resultdf['mix']=resultdf['mix']+data1['mix']
+                resultdf['mix_rank']=resultdf['mix_rank']+data1['mix_rank']
+            pass
+
+        print(resultdf)
+
+        mixdf=pd.merge(mixdf, resultdf, how='left', on=['ts_code','trade_date'])
+        print(mixdf)
+
+        mixdf.to_csv(predictname)
+
+        return predictname
+
+    #尝试将20分类结果进行回归
+    def LGBmodelretrain(self,featurepath,resultpath):
+
+        (filepath, tempfilename)=os.path.split(featurepath)
+        (filename, extension) = os.path.splitext(tempfilename)
+
+        modelfolder=filepath+'/'+filename
+        CSZLUtils.CSZLUtils.mkdir(modelfolder)
+
+        #基于使用的模块生成文件名
+        pklname=modelfolder+'/'+sys._getframe().f_code.co_name
+        lgb_model,pklname=self.LGBmodel_sum20(pklname)
+
+
+        featurepath=CSZLUtils.CSZLUtils.pathchange(featurepath)
+
+        counter=0
+
+        for counter in range(4):
+
+            modelsavepath=resultpath[:-5]
+            modelfirstpredictpath=modelsavepath+str(counter)+'.pkl'
+            modelsecpredictpath=modelsavepath+str(counter)+'_retrainmodel.pkl'
+            #modelsecpredictresultpath=modelsavepath+str(counter)+'_retrainmodelresult.pkl'
+
+            if(os.path.exists(modelsecpredictpath)==False):
+
+                x_train,y_train,train_label=self.LGBdatasetprepar2(featurepath,modelfirstpredictpath)
+
+                lgb_model.fit(x_train, y_train, 
+                    #eval_set=[(x_valid, y_valid)],  
+                    #early_stopping_rounds=verbose, 
+                    verbose=50
+                    )
+                joblib.dump(lgb_model,modelsecpredictpath)
+
+
+            #test_resultdf=lgb_model.predict(x_train)
+            #data1 = pd.DataFrame(test_resultdf)
+            #data2 = pd.DataFrame(y_train)
+            #resultdf=train_label.join(data1)
+            #resultdf2=train_label.join(data2)
+            #showdf=pd.merge(resultdf, resultdf2, how='left', on=['ts_code','trade_date'])
+
+            #print(showdf)
+            #showdf.to_csv("sdf.csv")
+
+            #savepath_new=pklname+'_'+str(counter)+".pkl"
+            #joblib.dump(usemodel,savepath_new)     
+
+        return modelfirstpredictpath
+
+    def LGBmodelrepredict(self,featurepath,retraindata,retrainmodel):
+
+        datapath=retraindata[:-5]
+        finalpath=datapath+'retrainresult.pkl'
+
+        if(os.path.exists(finalpath)==True):
+            return checkpath
+
+        counter=0
+
+        resultdf=[]
+        for counter in range(4):
+
+            modelsavepath=retrainmodel[:-5]
+            modelsecpredictpath=modelsavepath+str(counter)+'_retrainmodel.pkl'
+            
+
+            datapath=retraindata[:-5]
+            modelfirstpredictpath=datapath+str(counter)+'.pkl'
+            modelsecpredictresultpath=datapath+str(counter)+'_retrainresult.pkl'
+
+            if(os.path.exists(modelsecpredictresultpath)==False):
+
+                x_train,y_train,train_label=self.LGBdatasetprepar2(featurepath,modelfirstpredictpath)
+
+                lgb_model = joblib.load(modelsecpredictpath)
+
+                test_resultdf=lgb_model.predict(x_train)
+                data1 = pd.DataFrame(test_resultdf)
+                #data2 = pd.DataFrame(y_train)
+                data2=train_label.join(data1)
+                data2.rename(columns={0: 'mix',}, inplace=True)
+
+                if(counter==0):
+                    resultdf=data2
+                    
+                else:
+                    resultdf['mix']=resultdf['mix']+data2['mix']
+                    #resultdf['mix_rank']=resultdf['mix_rank']+data2['mix_rank']
+
+
+                pass
+
+            #savepath_new=pklname+'_'+str(counter)+".pkl"
+            #joblib.dump(usemodel,savepath_new)     
+
+        resultdf.to_csv(finalpath)
+        return finalpath
+
+    def LGBdatasetprepar2(self,featurepath,resultpath):
+
+        #df_all=pd.read_csv(featurepath,index_col=0,header=0)
+        #df_all=pd.read_pickle(featurepath)
+        df_all=CSZLUtils.CSZLUtils.Loaddata(featurepath)
+        df_predictfirst=CSZLUtils.CSZLUtils.Loaddata(resultpath)
+
+        df_all=df_all[['ts_code','trade_date','tomorrow_chg','tomorrow_chg_rank']]
+
+        df_all=pd.merge(df_all, df_predictfirst, how='inner', on=['ts_code','trade_date'])
+
+        #df_all=df_all.reset_index(drop=True)
+        
+        y_train = np.array(df_all['tomorrow_chg'])
+        train_label=df_all[['ts_code','trade_date']]
+        x_train=df_all.drop(['tomorrow_chg','tomorrow_chg_rank','ts_code','trade_date'],axis=1)
+
+        #print(x_train)
+
+        return x_train,y_train,train_label

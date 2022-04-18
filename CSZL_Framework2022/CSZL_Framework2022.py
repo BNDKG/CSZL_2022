@@ -28,9 +28,15 @@ if __name__ == '__main__':
 
     zzzz=CSZLWorkflow.CSZLWorkflow()
 
-    zzzz.BackTesting()
+    #zzzz.BackTesting()
     
+    zzzz.RealTimePredict()
 
-    print("complete CSZL_2022")
-    input()
-    end=1
+    pass
+
+    #print("complete CSZL_2022")
+    #input()
+    #end=1
+
+
+

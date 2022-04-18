@@ -6,6 +6,8 @@ import CSZLData
 import matplotlib
 import matplotlib.pyplot as plt
 
+from sklearn.utils import shuffle
+
 class CSZLDisplay(object):
     """description of class"""
 
@@ -24,7 +26,8 @@ class CSZLDisplay(object):
         df_all=pd.merge(df_all, df_limit_all, how='left', on=['ts_code','trade_date'])
 
         score_df = pd.read_csv(resultpath,index_col=0,header=0)
-        score_df=score_df[['ts_code','trade_date','mix']]
+        #score_df=score_df[['ts_code','trade_date','mix']]
+        score_df=score_df[['ts_code','trade_date','mix','Shift_1total_mv_rank']]
 
         #score_df = pd.read_csv('zzzzfackdatapred_fullold.csv',index_col=0,header=0)
         
@@ -33,12 +36,14 @@ class CSZLDisplay(object):
 
         #hold_all=5
         #change_num=1
-        hold_all=15
-        change_num=3
+        hold_all=100
+        change_num=20
         account=100000000
         accountbase=account
         buy_pct=0.9
         Trans_cost=0.997        #千三
+        # balance random none
+        choicepolicy="balance"
 
         ###添加停牌计算和涨跌停简单策略
 
@@ -72,15 +77,15 @@ class CSZLDisplay(object):
             cur_merge_df=pd.merge(cur_df_all,cur_score_df, how='left', on=['trade_date','ts_code'])
 
             cur_merge_df['mix'].fillna(-99.99, inplace=True)
-            if(len(last_cur_merge_df)):
+            if len(last_cur_merge_df):
                 cur_merge_df=pd.merge(cur_merge_df,last_cur_merge_df, how='left', on=['ts_code'])
                 cur_merge_df['last_mix'].fillna(-99.99, inplace=True)
             
-            #if(cur_date>20180102):
+            #if cur_date>20180102 :
             #    cur_merge_df=cur_merge_df.to_csv("dsdf.csv")
 
             code_value_sum=0
-            if(codelist.shape[0]>0):
+            if codelist.shape[0]>0 :
 
                 codelist_buffer=pd.merge(codelist,cur_merge_df, how='left', on=['ts_code'])
                 #刷新停牌的close和adj价值
@@ -125,7 +130,7 @@ class CSZLDisplay(object):
             sellto=hold_all-change_num
             sellnum=cur_hold_num-sellto
 
-            if(sellnum>0):
+            if sellnum>0:
 
                 #初始化本日卖出flag sell_value 每日刷新
                 #初始化本日卖出计数
@@ -201,6 +206,16 @@ class CSZLDisplay(object):
                 buylist=buylist[buylist['open']!=buylist['up_limit']]
                 #buylist=buylist[buylist['pct_chg']>-9]
 
+
+                if choicepolicy=="random":
+                    buylist = shuffle(buylist,random_state=4)
+                elif choicepolicy=="balance":
+                    headnum=buynum/20+1
+                    test=buylist.groupby('Shift_1total_mv_rank').tail(headnum)
+                    #print(test)
+                    buylist=test.sort_values(by=['last_mix'])
+
+
                 buylist=buylist.tail(buynum)
 
                 buylist.loc[:,'buyuse']=code_amount_buy/buylist['open']
@@ -209,7 +224,9 @@ class CSZLDisplay(object):
                 buylist.loc[:,'buyuse']=buylist['buyuse'].astype(int)
                 buylist['value']=buylist['open']*buylist['buyuse']
 
-                #print(buylist)
+                #seelist=buylist[['ts_code','trade_date','yesterday_1total_mv_rank']]
+
+                #print(seelist)
                 account=account-buylist['value'].sum()
                 #上日控制flag用于给后一日提供买卖信息，默认为0
                 buylist['last_action_flag']=0
@@ -250,7 +267,7 @@ class CSZLDisplay(object):
         datashow=datelist[eee]
         #a = np.random.rand(days.shape[0], 1)
 
-        if(True):
+        if True :
             #000001.SH 上证 000016.SH 50 000688.SH 科创50 000905.SH 中证500 399006.SZ 创业板指
             #399300.SZ 300 000852.SH 1000 
             baselinecode='399300.SZ'
@@ -289,7 +306,7 @@ class CSZLDisplay(object):
     def display_baseline(self,datelist,accountbase,basecode='399300.SZ'):
 
         #if(True):
-        #    CSZLData.CSZLData.get_baseline(basecode)
+        #    CSZLData.CSZLDataWithoutDate.get_baseline(basecode)
 
         index_name=basecode
         index_path='./Database/indexdata/'+index_name+'.csv'
