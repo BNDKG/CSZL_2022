@@ -347,3 +347,25 @@ class CSZLDataWithoutDate(object):
 
         return savepth
 
+    #获取股票列表
+    def get_stocklist():
+
+        #000001.SH 上证 000016.SH 50 000688.SH 科创50 000905.SH 中证500 399006.SZ 创业板指
+        #399300.SZ 300 000852.SH 1000 
+
+        savedir='./Database'
+        #检查目录是否存在
+        CSZLUtils.CSZLUtils.mkdir(savedir)
+
+        f = open('token.txt')
+        token = f.read()     #将txt文件的所有内容读入到字符串str中
+        f.close()
+
+        pro = ts.pro_api(token)
+
+        df = pro.stock_basic(exchange='', list_status='L', fields='ts_code,symbol,name,area,industry,list_date')
+
+        savepth=savedir+'/stocklist.csv'
+        df.to_csv(savepth,encoding='utf-8-sig')
+
+        return savepth

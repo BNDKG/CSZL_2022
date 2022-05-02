@@ -118,3 +118,23 @@ class CSZLUtils(object):
             path=filepath+'/'+filename+'.csv'
 
         return path
+
+    def copyfile(srcfile,dstfile):
+        """复制文件"""
+
+        if not os.path.isfile(srcfile):
+            print ("%s not exist!"%(srcfile))
+        else:
+            fpath,fname=os.path.split(dstfile)    #分离文件名和路径
+            if not os.path.exists(fpath):
+                os.makedirs(fpath)                #创建路径
+            shutil.copyfile(srcfile,dstfile)      #复制文件
+            print ("copy %s -> %s"%( srcfile,dstfile))
+
+
+    def getFlist(path):
+        for root, dirs, files in os.walk(path):
+            print('root_dir:', root)  #当前路径
+            print('sub_dirs:', dirs)   #子文件夹
+            print('files:', files)     #文件名称，返回list类型
+        return files

@@ -194,7 +194,8 @@ class CSZLFeatureEngineering(object):
             lastday=df2['trade_date'].max()
             df2['ts_code']=df2['ts_code'].apply(lambda x : x[:-3])
             copy_df=df2[df2['trade_date']==lastday]
-            copy_df['trade_date']=arges
+            copy_df.loc[:,'trade_date']=arges
+            
             df2 = df2.append(copy_df, ignore_index=True)
 
 
@@ -287,7 +288,7 @@ class CSZLFeatureEngineering(object):
             lastday=df['trade_date'].max()
             df['ts_code']=df['ts_code'].apply(lambda x : x[:-3])
             copy_df=df[df['trade_date']==lastday]
-            copy_df['trade_date']=arges
+            copy_df.loc[:,'trade_date']=arges
             df = df.append(copy_df, ignore_index=True)
 
         df['sm_amount']=df['buy_sm_amount']-df['sell_sm_amount']
@@ -329,7 +330,7 @@ class CSZLFeatureEngineering(object):
             lastday=df['trade_date'].max()
             df['ts_code']=df['ts_code'].apply(lambda x : x[:-3])
             copy_df=df[df['trade_date']==lastday]
-            copy_df['trade_date']=arges
+            copy_df.loc[:,'trade_date']=arges
             df = df.append(copy_df, ignore_index=True)
 
 
@@ -352,7 +353,7 @@ class CSZLFeatureEngineering(object):
             lastday=df['trade_date'].max()
             df['ts_code']=df['ts_code'].apply(lambda x : x[:-3])
             copy_df=df[df['trade_date']==lastday]
-            copy_df['trade_date']=arges
+            copy_df.loc[:,'trade_date']=arges
             df = df.append(copy_df, ignore_index=True)
 
         df.drop(['turnover_rate','volume_ratio','pe','dv_ttm'],axis=1,inplace=True)

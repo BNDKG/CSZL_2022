@@ -289,7 +289,9 @@ class CSZLModel(object):
         else:
             mixdf=pd.read_pickle(featurepath)
         print(mixdf)
-        mixdf=mixdf[['ts_code','trade_date','Shift_1total_mv_rank']]
+        mixdf=mixdf[['ts_code','trade_date','Shift_1total_mv_rank','close']]
+        
+        mixdf.rename(columns = {"close":"close_show"},  inplace=True)
         print(mixdf)
 
         if os.path.exists(predictname)==True and (not real_predict):
@@ -326,12 +328,17 @@ class CSZLModel(object):
             else:
                 resultdf['mix']=resultdf['mix']+data1['mix']
                 resultdf['mix_rank']=resultdf['mix_rank']+data1['mix_rank']
+                resultdf[0]=resultdf[0]+data1[0]
+                resultdf[9]=resultdf[9]+data1[9]
             pass
 
         print(resultdf)
 
         mixdf=pd.merge(mixdf, resultdf, how='left', on=['ts_code','trade_date'])
         print(mixdf)
+
+        if(real_predict):
+            predictname="Today_result.csv"
 
         mixdf.to_csv(predictname)
 

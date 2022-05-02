@@ -27,7 +27,7 @@ class CSZLDisplay(object):
 
         score_df = pd.read_csv(resultpath,index_col=0,header=0)
         #score_df=score_df[['ts_code','trade_date','mix']]
-        score_df=score_df[['ts_code','trade_date','mix','Shift_1total_mv_rank']]
+        score_df=score_df[['ts_code','trade_date','mix','Shift_1total_mv_rank','close_show']]
 
         #score_df = pd.read_csv('zzzzfackdatapred_fullold.csv',index_col=0,header=0)
         
@@ -305,8 +305,8 @@ class CSZLDisplay(object):
 
     def display_baseline(self,datelist,accountbase,basecode='399300.SZ'):
 
-        #if(True):
-        #    CSZLData.CSZLDataWithoutDate.get_baseline(basecode)
+        if(True):
+            CSZLData.CSZLDataWithoutDate.get_baseline(basecode)
 
         index_name=basecode
         index_path='./Database/indexdata/'+index_name+'.csv'
