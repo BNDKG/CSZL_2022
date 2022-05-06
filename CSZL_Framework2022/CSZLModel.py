@@ -42,6 +42,31 @@ class CSZLModel(object):
 
         return pklname
 
+    def LGBmodeltrain_CB(self,featurepath):
+
+        (filepath, tempfilename)=os.path.split(featurepath)
+        (filename, extension) = os.path.splitext(tempfilename)
+
+        modelfolder=filepath+'/'+filename
+        CSZLUtils.CSZLUtils.mkdir(modelfolder)
+
+        #基于使用的模块生成文件名
+        pklname=modelfolder+'/'+sys._getframe().f_code.co_name
+        lgb_model,pklname=self.LGBmodel_003(pklname)
+        checkpath=pklname+'_0.pkl'
+
+        featurepath=CSZLUtils.CSZLUtils.pathchange(featurepath)
+
+        if(os.path.exists(checkpath)==True):
+            return pklname
+
+        x_train,y_train,_=self.LGBdatasetprepar_CB(featurepath)
+
+        self.split_dataset_and_train(x_train,y_train,pklname,lgb_model)
+
+
+        return pklname
+
     def LGBdatasetprepar(self,featurepath):
 
         #df_all=pd.read_csv(featurepath,index_col=0,header=0)
@@ -63,6 +88,26 @@ class CSZLModel(object):
 
         return x_train,y_train,train_label
 
+    def LGBdatasetprepar_CB(self,featurepath):
+
+        #df_all=pd.read_csv(featurepath,index_col=0,header=0)
+        #df_all=pd.read_pickle(featurepath)
+        df_all=CSZLUtils.CSZLUtils.Loaddata(featurepath)
+
+        #df_all=df_all[df_all['high_stop']==0]
+        #df_all=df_all[df_all['close']>2]
+        #df_all=df_all[df_all['amount']>15000]
+
+        df_all.drop(['real_price'],axis=1,inplace=True)
+
+        df_all=df_all.reset_index(drop=True)
+        
+        y_train = np.array(df_all['tomorrow_chg_rank'])
+        train_label=df_all[['ts_code','trade_date']]
+        x_train=df_all.drop(['tomorrow_chg','tomorrow_chg_rank','ts_code','trade_date'],axis=1)
+
+        return x_train,y_train,train_label
+
     def LGBdatasetrealpredictprepar(self,featurepath):
 
         df_all=pd.read_csv(featurepath,index_col=0,header=0)
@@ -73,6 +118,22 @@ class CSZLModel(object):
         df_all=df_all[df_all['amount']>15000]
 
         df_all.drop(['st_or_otherwrong','real_price'],axis=1,inplace=True)
+
+        df_all=df_all.reset_index(drop=True)
+        
+        train_label=df_all[['ts_code','trade_date']]
+        x_train=df_all.drop(['ts_code','trade_date'],axis=1)
+
+        return x_train,train_label
+
+    def LGBdatasetrealpredictprepar_CB(self,featurepath):
+
+        df_all=pd.read_csv(featurepath,index_col=0,header=0)
+
+        df_all=df_all[df_all['close']>2]
+        #df_all.dropna(axis=0,how='any',inplace=True)
+
+        df_all.drop(['real_price'],axis=1,inplace=True)
 
         df_all=df_all.reset_index(drop=True)
         
@@ -231,6 +292,57 @@ class CSZLModel(object):
 
         return predictname
 
+    def LGBmodelpredict_CB(self,featurepath,modelpath):
+
+        (filepath, tempfilename)=os.path.split(featurepath)
+        (filename, extension) = os.path.splitext(tempfilename)
+
+        modelname=modelpath+'_0.pkl'
+        predictname=modelpath+'_'+filename+'_0.pkl'
+
+        if os.path.exists(predictname)==True and featurepath!="Today_Joinfeature_CB.csv":
+            #result=pd.read_pickle(predictname)
+            #result.to_csv("resultsee2.csv")
+
+            print("预测结果已生成")
+            return predictname
+
+        if featurepath=="Today_Joinfeature_CB.csv":
+            x_train,train_label=self.LGBdatasetrealpredictprepar_CB(featurepath)
+        else:
+            x_train,_,train_label=self.LGBdatasetprepar_CB(featurepath)
+
+
+        #x_train.to_csv("trainsee2.csv")
+        #finaldf = pd.merge(train_label, x_train, how='left', left_index=True, right_index=True) 
+        #print(finaldf)
+
+
+        train2=train_label.copy(deep=True)
+
+        for counter in range(4):
+            modelpath_new=modelpath+'_'+str(counter)+".pkl"
+            predictpath_new=modelpath+'_'+filename+'_'+str(counter)+".pkl"
+
+            lgb_model = joblib.load(modelpath_new)
+
+            dsadwd=lgb_model.feature_importances_
+            print(dsadwd)
+
+            pred_test = lgb_model.predict_proba(x_train)
+
+            data1 = pd.DataFrame(pred_test)
+
+            train3=train2.join(data1)
+            print(train3)
+
+            train3.to_pickle(predictpath_new)
+            pass
+
+
+
+        return predictname
+
     def MixOutputresult(self,featurepath,modelpath):
 
         (filepath, tempfilename)=os.path.split(featurepath)
@@ -329,7 +441,7 @@ class CSZLModel(object):
                 resultdf['mix']=resultdf['mix']+data1['mix']
                 resultdf['mix_rank']=resultdf['mix_rank']+data1['mix_rank']
                 resultdf[0]=resultdf[0]+data1[0]
-                resultdf[9]=resultdf[9]+data1[9]
+                resultdf[19]=resultdf[19]+data1[19]
             pass
 
         print(resultdf)
@@ -339,6 +451,75 @@ class CSZLModel(object):
 
         if(real_predict):
             predictname="Today_result.csv"
+
+        mixdf.to_csv(predictname)
+
+        return predictname
+
+    def MixOutputresult_groupbalence_CB(self,featurepath,modelpath,real_predict=False):
+
+        (filepath, tempfilename)=os.path.split(featurepath)
+        (filename, extension) = os.path.splitext(tempfilename)
+
+        predictname=modelpath+'_'+filename+'_result.csv'
+
+        if(real_predict):
+            mixdf=pd.read_csv(featurepath,index_col=0,header=0)
+        else:
+            mixdf=pd.read_pickle(featurepath)
+        print(mixdf)
+        mixdf=mixdf[['ts_code','trade_date','close']]
+        
+        mixdf.rename(columns = {"close":"close_show"},  inplace=True)
+        print(mixdf)
+
+        if os.path.exists(predictname)==True and (not real_predict):
+            #mixdf=pd.read_csv(predictname,index_col=0,header=0)
+            #print(mixdf)
+
+            print("合成预测结果已生成")
+            return predictname
+
+
+        resultdf=[]
+        for counter in range(4):
+
+            predictpath_new=modelpath+'_'+filename+'_'+str(counter)+".pkl"
+
+            data1=pd.read_pickle(predictpath_new)
+
+            #print(data1)
+
+            data1['mix']=0
+
+            #multlist=[-9.34,-5.48,-4.2,-3.4,-2.7,-2.3,-1.86,-1.47,-1.09,-0.74,-0.38,0,0.398,0.838,1.35,1.96,2.74,3.81,5.58,10.77]
+            multlist=[-7.26,-3.64,-2.52,-1.95,-1.45,-1.15,-0.85,-0.63,-0.36,-0.14,0,0.26,0.56,0.81,1.15,1.53,2.08,2.89,4.44,10.48]
+
+
+            for i in range(20):
+                buffer=data1[i]*multlist[i]
+                data1['mix']=data1['mix']+buffer
+
+            data1['mix_rank']=data1.groupby('trade_date')['mix'].rank(ascending=True,pct=True,method='first')
+
+            #print(data1)
+
+            if(counter==0):
+                resultdf=data1
+            else:
+                resultdf['mix']=resultdf['mix']+data1['mix']
+                resultdf['mix_rank']=resultdf['mix_rank']+data1['mix_rank']
+                resultdf[0]=resultdf[0]+data1[0]
+                resultdf[19]=resultdf[19]+data1[19]
+            pass
+
+        print(resultdf)
+
+        mixdf=pd.merge(mixdf, resultdf, how='left', on=['ts_code','trade_date'])
+        print(mixdf)
+
+        if(real_predict):
+            predictname="Today_result_CB.csv"
 
         mixdf.to_csv(predictname)
 

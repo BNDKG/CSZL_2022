@@ -25,6 +25,7 @@ class CSZLFeatureEngineering(object):
         self.dfMoneyflow=pd.DataFrame([])
         self.dfLimit=pd.DataFrame([])
         self.dfLongfactor=pd.DataFrame([])
+        self.dfCBDaily=pd.DataFrame([])
 
         pass
 
@@ -101,6 +102,39 @@ class CSZLFeatureEngineering(object):
         print(df_joinfeature)
 
         df_joinfeature.to_csv("Today_Joinfeature.csv")
+
+
+        return df_joinfeature
+
+
+    def FECB01(self):
+
+        #20220415
+        savepath =self.create_trainingdatasets(self.create_CBtarget)
+        savepath2 =self.create_trainingdatasets(self.create_CBdayfeature3)
+
+        funname=sys._getframe().f_code.co_name
+        funpath=self.Default_folder_path+funname+self.start_date+"to"+self.end_date+".pkl"
+
+        savepath8 =self.create_trainingdatasets(self.create_joinfeatures,0,funpath,[savepath,savepath2])
+
+
+        return savepath8
+
+    def FECB01_real(self,date):
+
+        #20220415
+        df_dayfeature =self.create_CBdayfeature3(date)
+        #print(df_featured)
+
+        df_joinfeature=df_dayfeature
+        #df_joinfeature=self.create_joinfeatures_real([df_dayfeature])
+
+        finalday=df_joinfeature['trade_date'].max()
+        df_joinfeature=df_joinfeature[df_joinfeature['trade_date']==finalday]
+        print(df_joinfeature)
+
+        df_joinfeature.to_csv("Today_Joinfeature_CB.csv")
 
 
         return df_joinfeature
@@ -197,7 +231,6 @@ class CSZLFeatureEngineering(object):
             copy_df.loc[:,'trade_date']=arges
             
             df2 = df2.append(copy_df, ignore_index=True)
-
 
 
         df=pd.merge(df, df2, how='inner', on=['ts_code','trade_date'])
@@ -380,6 +413,81 @@ class CSZLFeatureEngineering(object):
         
         return df
 
+    def create_CBtarget(self,arges):
+
+        df=self.LoaddfCB_daily().copy(deep=True)
+
+        df['real_price']=df['close']
+        df=df[["ts_code","trade_date","real_price"]]
+
+        df=self.PedictDaysRank(df,5)
+
+        df=df[["ts_code","trade_date","tomorrow_chg","tomorrow_chg_rank"]]
+
+        print(df)
+
+        return df
+
+    def create_CBdayfeature3(self,arges):
+
+        df=self.LoaddfCB_daily().copy(deep=True)
+
+        if arges:
+
+            loadpath="real_buffer_CB.csv"
+            df_today=pd.read_csv(loadpath,index_col=0,header=0)
+            df_today['trade_date']=arges
+
+            df['ts_code']=df['ts_code'].apply(lambda x : x[:-3])
+            df_today['ts_code']=df_today['ts_code'].apply(lambda x:str(x).zfill(6))
+
+            df = df.append(df_today, ignore_index=True)
+
+            #lastday=df2['trade_date'].max()
+            #df2['ts_code']=df2['ts_code'].apply(lambda x : x[:-3])
+            #copy_df=df2[df2['trade_date']==lastday]
+            #copy_df.loc[:,'trade_date']=arges
+            
+            #df2 = df2.append(copy_df, ignore_index=True)
+
+        df['real_price']=df['close']
+
+        df=df[["ts_code","trade_date","real_price","open","high","low","pct_chg","pre_close","close","amount"]]
+
+        df['chg_rank']=df.groupby('trade_date')['pct_chg'].rank(pct=True)
+        df['pct_chg_abs']=df['pct_chg'].abs()
+        df['pct_chg_abs_rank']=df.groupby('trade_date')['pct_chg_abs'].rank(pct=True)
+
+        #计算三种比例rank
+        dolist=['open','high','low']
+
+        for curc in dolist:
+            buffer=((df[curc]-df['pre_close'])*100)/df['pre_close']
+            df[curc]=buffer
+            df[curc]=df.groupby('trade_date')[curc].rank(pct=True)
+
+
+        df['pct_chg_r']=df['pct_chg']
+        df=self.OldFeaturesRank(df,['open','high','low','pct_chg_r'],1)
+
+        df=self.InputChgSumRank(df,6,'pct_chg_abs')
+        df=self.InputChgSumRank(df,3,'pct_chg')
+        df=self.InputChgSumRank(df,6,'pct_chg')
+        df=self.InputChgSumRank(df,12,'pct_chg')
+        df=self.InputChgSumRank(df,24,'pct_chg')
+
+        df=self.InputChgSum(df,3,'pct_chg')
+        df=self.InputChgSum(df,6,'pct_chg')
+        df=self.InputChgSum(df,12,'pct_chg')
+        df=self.InputChgSum(df,24,'pct_chg')
+
+        print(df)
+        #df.to_csv("seeeeee.csv")
+
+
+        return df
+
+
     #创建shift特征的方法用于无法获取当日特征的情况
     def create_Shiftfeatures(self,arges):
 
@@ -486,6 +594,13 @@ class CSZLFeatureEngineering(object):
             self.dfLongfactor=CSZLUtils.CSZLUtils.Loaddata(loadpath)
 
         return self.dfLongfactor
+
+    def LoaddfCB_daily(self):
+        if(self.dfCBDaily.empty):
+            loadpath=self.CSZLDataLoader.getDataSet_cbdaily(self.Default_folder_path)
+            self.dfCBDaily=CSZLUtils.CSZLUtils.Loaddata(loadpath)
+
+        return self.dfCBDaily
 
     ######dataframe处理
     def CloseWithHighLow(self,df_all,days,minmax='min'):

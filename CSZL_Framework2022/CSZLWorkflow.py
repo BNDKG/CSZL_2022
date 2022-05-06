@@ -8,6 +8,7 @@ import CSZLDisplay
 import CSZLUtils
 import pandas as pd
 import datetime
+import time
 
 class CSZLWorkflow(object):
     """各种workflow 主要就是back testing"""
@@ -22,17 +23,22 @@ class CSZLWorkflow(object):
         #zzzz.getDataSet_all(Default_folder_path)
 
         #"20150801","20220425"
-        #dayA='20130101'#nomal/small
-        #dayB='20170301'
-        dayA='20150801'#nomal/small
-        dayB='20220425'
-        #dayC='20170301'
-        #dayD='20220301'
+        dayA='20150101'#nomal/small
+        dayB='20170301'
+        dayB='20200101'
+        #dayA='20150801'#nomal/small
+        #dayB='20220425'
+        dayC='20170301'
+        dayD='20220425'
 
         #dayA='20150801'#nomal/small
         #dayB='20220425'
-        dayC='20220201'
-        dayD='20220429'
+        #dayC='20220201'
+        #dayD='20220429'
+
+
+        dayC='20200301'
+        dayD='20220505'
 
         zzzz=FE.CSZLFeatureEngineering(dayA,dayB,Default_folder_path)
         trainpath=zzzz.FE03()
@@ -69,17 +75,17 @@ class CSZLWorkflow(object):
 
         today_df = pd.read_csv(resultpath,index_col=0,header=0)
 
-        lastday=today_df['trade_date'].max()
-        today_df['ts_code']=today_df['ts_code'].apply(lambda x : x[:-3])
-        copy_df=today_df[today_df['trade_date']==lastday]
-        copy_df.to_csv("Today_NEXT_predict.csv")
+        #lastday=today_df['trade_date'].max()
+        #today_df['ts_code']=today_df['ts_code'].apply(lambda x : x[:-3])
+        #copy_df=today_df[today_df['trade_date']==lastday]
+        #copy_df.to_csv("Today_NEXT_predict.csv")
 
         curdisplay=CSZLDisplay.CSZLDisplay()
         curdisplay.Topk_nextopen(resultpath)
 
         pass
 
-    def BackTesting_snowball_0501(self):
+    def BackTesting_static_0501(self):
 
         #生成需要的数据集
         nowTime=datetime.datetime.now()
@@ -92,6 +98,7 @@ class CSZLWorkflow(object):
         Day_end=LastTime.strftime('%Y%m%d')  
         Day_now=nowTime.strftime('%Y%m%d')
 
+        #Default_folder_path='./temp2/'
         Default_folder_path='D:/temp2/'
 
         dayA='20150801'#nomal/small
@@ -179,12 +186,14 @@ class CSZLWorkflow(object):
 
     def RealTimePredict(self):
 
-        #Default_folder_path='./temp/'
-        Default_folder_path='D:/temp2/'
+        Default_folder_path='./temp2/'
+        #Default_folder_path='D:/temp2/'
 
         #cur_model_path="D:/temp2/FE0320190101to20210101_0/LGBmodeltrainLGBmodel_003"
-        cur_model_path="D:/temp2/FE0320150801to20220425_0/LGBmodeltrainLGBmodel_003"
-        if cur_model_path:
+        #cur_model_path="D:/temp2/FE0320150801to20220425_0/LGBmodeltrainLGBmodel_003"
+        cur_model_path="./temp2/FE0320150801to20220425_0/LGBmodeltrainLGBmodel_003"
+        #是否需要重新生成
+        if False:
             #zzzz=FE.CSZLFeatureEngineering("20190101","20210101",Default_folder_path)
             #trainpath=zzzz.FE03()
             zzzz=FE.CSZLFeatureEngineering("20150801","20220425",Default_folder_path)
@@ -216,7 +225,7 @@ class CSZLWorkflow(object):
         zzzz.FE03_real(int(Day_now))
         featurepath="Today_Joinfeature.csv"
 
-
+        cur_model=CSZLModel.CSZLModel()
         #resultpath2=cur_model.LGBmodelpredict(trainpath,cur_model_path)
         resultpath=cur_model.LGBmodelpredict(featurepath,cur_model_path)
         
@@ -226,7 +235,81 @@ class CSZLWorkflow(object):
 
         pass
 
-    def Todays_action(self,last_path,Today_result_path,changenum_max,singleamout):
+    def RealTimePredict_CB(self):
+
+        Default_folder_path='./temp2/'
+        #Default_folder_path='D:/temp2/'
+
+        #cur_model_path="D:/temp2/FE0320190101to20210101_0/LGBmodeltrainLGBmodel_003"
+        #cur_model_path="D:/temp2/FE0320150801to20220425_0/LGBmodeltrainLGBmodel_003"
+        cur_model_path="./temp2/FECB0120130101to20210301_0/LGBmodeltrain_CBLGBmodel_003"
+        #是否需要重新生成
+        if False:
+            dayA='20130101'#nomal/small
+            dayB='20210301'
+            zzzz=FE.CSZLFeatureEngineering(dayA,dayB,Default_folder_path)
+            trainpath=zzzz.FECB01()
+            cur_model=CSZLModel.CSZLModel()
+            cur_model_path=cur_model.LGBmodeltrain_CB(trainpath)
+        
+
+        #生成需要的数据集
+        nowTime=datetime.datetime.now()
+        delta = datetime.timedelta(days=63)
+        delta_one = datetime.timedelta(days=1)
+        LastTime=nowTime-delta_one
+        month_ago = LastTime - delta
+        month_ago_next=month_ago+delta_one
+        Day_start=month_ago_next.strftime('%Y%m%d')  
+        Day_end=LastTime.strftime('%Y%m%d')
+
+        Day_now=nowTime.strftime('%Y%m%d')  
+
+        CSZLData.CSZLDataWithoutDate.get_realtime_quotes_CB(Default_folder_path,Day_start,Day_end)
+        zzzz=FE.CSZLFeatureEngineering(Day_start,Day_end,Default_folder_path)
+
+
+        zzzz.FECB01_real(int(Day_now))
+        featurepath="Today_Joinfeature_CB.csv"
+
+        cur_model=CSZLModel.CSZLModel()
+        #resultpath2=cur_model.LGBmodelpredict(trainpath,cur_model_path)
+        resultpath=cur_model.LGBmodelpredict_CB(featurepath,cur_model_path)
+        
+        resultpath=cur_model.MixOutputresult_groupbalence_CB(featurepath,cur_model_path,resultpath)    
+        
+        pass
+
+    def CBBackTesting(self):
+
+        Default_folder_path='D:/temp2/'
+
+        dayA='20130101'#nomal/small
+        dayB='20210301'
+
+        dayC='20210301'
+        dayD='20220505'
+
+        zzzz=FE.CSZLFeatureEngineering(dayA,dayB,Default_folder_path)
+        trainpath=zzzz.FECB01()
+        zzzz=FE.CSZLFeatureEngineering(dayC,dayD,Default_folder_path)
+        testpath=zzzz.FECB01()
+
+        cur_model=CSZLModel.CSZLModel()
+
+        cur_model_path=cur_model.LGBmodeltrain_CB(trainpath)
+
+        cur_model.LGBmodelpredict_CB(testpath,cur_model_path)
+
+        resultpath=cur_model.MixOutputresult_groupbalence_CB(testpath,cur_model_path)
+
+        curdisplay=CSZLDisplay.CSZLDisplay()
+        curdisplay.Topk_nextopen_CB(resultpath)
+
+        pass
+
+
+    def Todays_action(self,last_path,Today_result_path,changenum_max,singleamout,Auto=False):
 
         #最高换手个数
         #changenum_max=2
@@ -291,7 +374,11 @@ class CSZLWorkflow(object):
 
         del_show=df_oldcode_set[df_oldcode_set['ts_code'].isin(real_change_df['ts_code'])]
         print("===show sell===")
-        print(del_show[['ts_code','name','num_rank','hold','close_show']])
+        if Auto:
+            print(del_show)
+            df_del_sever=del_show[["ts_code","0","19","mix_rank"]]
+        else:
+            print(del_show[['ts_code','name','num_rank','hold','close_show']])
         print("===show sell end===")
 
         df_choiceset=df[~df['ts_code'].isin(df_last['ts_code'])]
@@ -303,23 +390,35 @@ class CSZLWorkflow(object):
         df_choiceset['hold']=(singleamout/df_choiceset['close_show'])//100 * 100
 
         print("===show buy===")
+        if Auto:
+            print(df_choiceset)
+            df_add_sever=df_choiceset[["ts_code","0","19","mix_rank"]]
+        #else:          
+        #    print(del_show[['ts_code','name','num_rank','hold','close_show']])
         print(df_choiceset[['ts_code','hold','close_show','0','name']])
         print("===show buy end===")
 
         df_newset=df_holdset.append(df_choiceset, ignore_index=True)
 
-        df_newset=df_newset[['ts_code','trade_date','Shift_1total_mv_rank','0','9','num_rank','close_show','hold','name']]
+        df_newset=df_newset[['ts_code','trade_date','Shift_1total_mv_rank','0','19','num_rank','close_show','hold','name']]
         print(df_newset)
         #df_newset['price']=df_newset['close_show']*df_newset['hold']
         #print(df_newset['price'])
 
         #是否覆盖
-        print("是否覆盖前日结果 y/n")
-        if_cover=input()
-        if if_cover=='y' or if_cover=='Y':
+        if Auto:
+            df_server=df_del_sever.append(df_add_sever, ignore_index=True)
+            print(df_server)
+            df_server.to_csv("today_real_remix_result.csv")
             df_newset.to_csv(last_path,encoding='utf-8-sig')
+
         else:
-            df_newset.to_csv("temp_result.csv",encoding='utf-8-sig')
+            print("是否覆盖前日结果 y/n")
+            if_cover=input()
+            if if_cover=='y' or if_cover=='Y':
+                df_newset.to_csv(last_path,encoding='utf-8-sig')
+            else:
+                df_newset.to_csv("temp_result.csv",encoding='utf-8-sig')
 
         pass
 
@@ -331,7 +430,7 @@ class CSZLWorkflow(object):
 
         zzzz.getDataSet_all(Default_folder_path)
 
-    def HaitongToCSZL(self):
+    def Haitong2CSZL(self):
         #获取文件夹里面最后更新的文档
 
         sourcepath="./Source"
@@ -368,6 +467,49 @@ class CSZLWorkflow(object):
 
         pass
 
+    def TodayResult2ServerData(self):
+
+        sourcepath="Today_result.csv"
+
+        df=pd.read_csv(sourcepath,index_col=0,header=0)
+
+        ServerData=df[["ts_code","0","19","mix_rank"]]
+
+        ServerData.sort_values(by=['mix_rank'],ascending=False, inplace=True)
+        ServerData.dropna(axis=0, how='any', inplace=True)
+        print(ServerData)
+        ServerData
+
+        ServerData.to_csv("today_real_remix_result.csv")
+
+        pass
+
+    def PredictBackRound(self):
+
+        cur_date=datetime.datetime.now().strftime("%Y-%m-%d")
+        change_flag=0
+        while(True):
+            date=datetime.datetime.now()
+            day = date.weekday()
+            if(day>4):
+                time.sleep(10000)
+                continue
+                dawd=5
+
+
+            if(self.TimeCheck()):       
+
+
+                self.RealTimePredict()
+                self.Todays_action('last_result_real.csv',"Today_result.csv",3,7000,True)
+
+                print("Today_over")
+                time.sleep(10000) 
+        
+
+            print(date)
+            time.sleep(10)
+
     def PKL2CSV(self):
 
         sourcepath="./transform"
@@ -376,6 +518,8 @@ class CSZLWorkflow(object):
         for file in file_name:
 
             (filename, extension) = os.path.splitext(file)
+            if extension=='.csv':
+                continue
             pathread=sourcepath+'/'+file
             df=pd.read_pickle(pathread)
 
@@ -386,3 +530,21 @@ class CSZLWorkflow(object):
             df.to_csv(pathwrite)
 
             pass
+
+    def TimeCheck(self):
+        global CurHour
+        global CurMinute
+
+
+
+        CurHour=int(time.strftime("%H", time.localtime()))
+        CurMinute=int(time.strftime("%M", time.localtime()))
+
+        caltemp=CurHour*100+CurMinute
+
+        #return True
+
+        if (caltemp>=1450 and caltemp<=1500):
+            return True
+        else:
+            return False 

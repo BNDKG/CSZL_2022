@@ -138,3 +138,12 @@ class CSZLUtils(object):
             print('sub_dirs:', dirs)   #子文件夹
             print('files:', files)     #文件名称，返回list类型
         return files
+
+    def fun01():
+        df=pd.read_csv("qwer.csv",index_col=0,header=0)
+        df=df[df['tomorrow_chg']!=0]
+        grouped = df.groupby(['tomorrow_chg_rank']) # 对col1列进行分组
+
+        zzzz2=grouped['tomorrow_chg'].mean() # 计算每个组col2列的均值
+
+        print(zzzz2)

@@ -2,7 +2,7 @@
 import sys
 import CSZLData
 import CSZLWorkflow
-import tushare as ts
+
 
 if __name__ == '__main__':
 
@@ -14,7 +14,8 @@ if __name__ == '__main__':
     else:
         print("系统接收参数")
         print("CSZL2022 功能列表：\n 1:BackTesting \n 2:RealTimePredict \n 3:BackTesting_snowball\n"
-               " 4:BackTesting_haitong")
+               " 4:BackTesting_haitong\n 5:ServerRun\n 6:Convertible bond BackTesting\n 7:RealTimePredict_CB\n"
+               " 9:PKL2CSV")
         action=input()
 
 
@@ -26,15 +27,47 @@ if __name__ == '__main__':
     elif action=='2':
         #"Today_result.csv"
         zzzz.RealTimePredict()
-        zzzz.HaitongToCSZL()
+        zzzz.Haitong2CSZL()
         zzzz.Todays_action('last_result_real.csv',"Today_result.csv",5,7000)
     elif action=='3':
-        zzzz.BackTesting_snowball_0501()
+        zzzz.BackTesting_static_0501()
         zzzz.Todays_action('last_result_snowball.csv','Today_NEXT_predict.csv',2,200000)
     elif action=='4':
-        zzzz.BackTesting_snowball_0501()
-        zzzz.HaitongToCSZL()
+        zzzz.BackTesting_static_0501()
+        zzzz.Haitong2CSZL()
         zzzz.Todays_action('last_result_real.csv','Today_NEXT_predict.csv',5,7000)
+    elif action=='5':
+        zzzz.PredictBackRound()
+
+    elif action=='6':
+
+        zzzz.CBBackTesting()
+
+        pass
+    elif action=='7':
+
+        #import numpy as np
+
+        #a=[1233,34,67,4]
+        #a=np.array(a)
+        #np.save('a.npy',a) # 保存为.npy格式
+
+        #a=np.load('a.npy')
+        #a=a.tolist()
+
+        #print(a)
+
+        zzzz.RealTimePredict_CB()
+
+        #CSZLData.CSZLDataWithoutDate.get_realtime_quotes_CB()
+
+        #CSZLData.CSZLDataWithoutDate.get_cb_basic()
+
+
+        pass
+
+    elif action=='8':
+        zzzz.Haitong2CSZL()
 
     elif action=='9':
         zzzz.PKL2CSV()

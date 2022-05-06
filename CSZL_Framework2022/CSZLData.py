@@ -81,6 +81,12 @@ class CSZLData(object):
     def _get_moneyflow(self,trade_date):
         return self.pro.moneyflow(ts_code='',trade_date=trade_date)
 
+    @decorator_catch_exception
+    def updatecbdaily(self):
+        dfcolumn=pd.DataFrame(columns=('ts_code','trade_date','open','high','low','close','pre_close','change','pct_chg','vol','amount'))
+        self.updatedatas('CBDaily.pkl',dfcolumn,self.pro.cb_daily)
+
+
     #更新数据通用逻辑
     def updatedatas(self,data_name,dfcolumn,useapi):
 
@@ -185,6 +191,12 @@ class CSZLData(object):
         self.update_moneyflow()
         return self.getDataSets(folderpath,'Daily_moneyflow')
 
+    @decorator_catch_exception
+    def getDataSet_cbdaily(self,folderpath):
+        #这里获取前先直接调用一下下载
+        self.updatecbdaily()
+        return self.getDataSets(folderpath,'CBDaily')
+
     #获取数据集通用逻辑
     def getDataSets(self,folderpath,savename):
         #获取某日到某日的数据,并保存到temp中
@@ -229,9 +241,9 @@ class CSZLDataWithoutDate(object):
 
         codelist=codelistbuffer.tolist()
 
-        CSZLDataWithoutDate.get_realtime_quotes_withlist(codelist)
+        CSZLDataWithoutDate.get_realtime_quotes_withlist(codelist,"real_buffer.csv",500)
 
-    def get_realtime_quotes_withlist(codelist):
+    def get_realtime_quotes_withlist(codelist,result_path,minnum):
 
         code_counter=0
         bufferlist=[]
@@ -246,7 +258,7 @@ class CSZLDataWithoutDate(object):
             #curcode_str=str(curcode).zfill(6)
             bufferlist.append(curcode_str)
             code_counter+=1
-            if(code_counter>=500):
+            if(code_counter>=minnum):
                 if(len(df_real)):
                     wrongcounter=0
                     while(1):
@@ -319,9 +331,23 @@ class CSZLDataWithoutDate(object):
 
         df_real=df_real.rename(columns={'price':'close','date':'trade_date','code':'ts_code'})
 
-        df_real.to_csv("real_buffer.csv")
+        df_real.to_csv(result_path)
 
+    def get_realtime_quotes_CB(Default_folder_path,startdate,enddate):
 
+        DataLoader=CSZLData(startdate,enddate)
+
+        loadpath=DataLoader.getDataSet_cbdaily(Default_folder_path)
+        dfDailydata_realtime=CSZLUtils.CSZLUtils.Loaddata(loadpath)
+
+        codelistbuffer=dfDailydata_realtime['ts_code']
+        codelistbuffer=codelistbuffer.unique()
+
+        codelist=codelistbuffer.tolist()
+
+        CSZLDataWithoutDate.get_realtime_quotes_withlist(codelist,"real_buffer_CB.csv",200)
+
+        pass
 
     #获取指数行情
     def get_baseline(basecode='000905.SH'):
@@ -369,3 +395,25 @@ class CSZLDataWithoutDate(object):
         df.to_csv(savepth,encoding='utf-8-sig')
 
         return savepth
+
+    #获取可转债列表
+    def get_cb_basic():
+
+        savedir='./Database'
+        #检查目录是否存在
+        CSZLUtils.CSZLUtils.mkdir(savedir)
+
+        f = open('token.txt')
+        token = f.read()     #将txt文件的所有内容读入到字符串str中
+        f.close()
+
+        pro = ts.pro_api(token)
+
+        df = pro.cb_basic(fields="ts_code,bond_short_name,stk_code,stk_short_name,list_date,conv_price,delist_date,issue_rating")
+
+        print(df)
+        df.to_csv("cb_basic.csv",encoding='utf-8-sig')
+
+
+
+        pass
