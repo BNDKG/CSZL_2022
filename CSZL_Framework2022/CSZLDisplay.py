@@ -208,15 +208,19 @@ class CSZLDisplay(object):
                 #buylist=buylist[buylist['pct_chg']>-9]
 
 
-                if choicepolicy=="random":
+                if choicepolicy=="random":                    
                     buylist = shuffle(buylist,random_state=4)
                 elif choicepolicy=="balance":
                     headnum=buynum/20+1
+                    
                     test=buylist.groupby('Shift_1total_mv_rank').tail(headnum)
-                    #print(test)
+                    #print(buylist)
                     buylist=test.sort_values(by=['last_mix_rank'])
 
-
+                #错误示范，预知未来
+                buylist=buylist[buylist['last_amount']>1500]
+                #buylist.to_csv("comp.csv")
+                #print(buylist)
                 buylist=buylist.tail(buynum)
 
                 buylist.loc[:,'buyuse']=code_amount_buy/buylist['open']
@@ -253,8 +257,8 @@ class CSZLDisplay(object):
             print(cur_date)
             show3.append(account+code_value_sum)
 
-            last_cur_merge_df=cur_merge_df[["ts_code","mix_rank"]]
-            last_cur_merge_df.columns =['ts_code','last_mix_rank']
+            last_cur_merge_df=cur_merge_df[["ts_code","mix_rank","amount"]]
+            last_cur_merge_df.columns =['ts_code','last_mix_rank','last_amount']
             #print(last_cur_merge_df)
             days+=1
 
@@ -267,6 +271,14 @@ class CSZLDisplay(object):
         daysshow=days[eee]
         datashow=datelist[eee]
         #a = np.random.rand(days.shape[0], 1)
+
+
+        #a=np.load('a.npy')
+        #a=a.tolist()
+
+        #print(a)
+
+        #plt.plot(days,a,c='red',label='CB')
 
         if True :
             #000001.SH 上证 000016.SH 50 000688.SH 科创50 000905.SH 中证500 399006.SZ 创业板指
@@ -620,7 +632,7 @@ class CSZLDisplay(object):
         account=100000000
         accountbase=account
         buy_pct=0.9
-        Trans_cost=0.999        #千三
+        Trans_cost=0.9997        #千三
         # balance random none small
         choicepolicy="small"
 
@@ -775,7 +787,7 @@ class CSZLDisplay(object):
 
                 code_amount_buy=buy_all_value/buynum
 
-                cur_merge_df=cur_merge_df.sort_values(by=['last_mix_rank'])
+                #cur_merge_df=cur_merge_df.sort_values(by=['last_mix_rank'])
 
                 buylist=cur_merge_df
                 #single code no repeat
@@ -788,17 +800,28 @@ class CSZLDisplay(object):
 
 
                 if choicepolicy=="random":
-                    buylist = shuffle(buylist,random_state=4)
+                    buylist=buylist[buylist['last_amount']>1000]
+                    buylist=buylist[buylist['last_close']<120]
+                    #buylist = buylist[buylist['amount']>2000]
+                    buylist = shuffle(buylist,random_state=12)
 
                 if choicepolicy=="small":
-                    buylist = buylist[buylist['open']<120]
-                #elif choicepolicy=="balance":
-                #    headnum=buynum/20+1
-                #    test=buylist.groupby('Shift_1total_mv_rank').tail(headnum)
-                #    #print(test)
-                #    buylist=test.sort_values(by=['last_mix'])
+
+                    pass
+                    #print(buylist)
+                    buylist=buylist[buylist['last_amount']>1500]
+                    buylist=buylist[buylist['last_close']<120]
+                    #buylist = buylist[buylist['open']<120]
+                    #buylist['amount_rank']=buylist['amount'].rank(pct=True)
+                    #buylist = buylist[buylist['amount_rank']>0.9]
+                    #buylist = buylist[buylist['amount']>5000]
+                    buylist=buylist.sort_values(by=['last_mix_rank'])
+                    #print(buylist)
 
 
+
+
+                #print(buylist)
                 buylist=buylist.tail(buynum)
 
                 buylist.loc[:,'buyuse']=code_amount_buy/buylist['open']
@@ -828,15 +851,16 @@ class CSZLDisplay(object):
             #codelist_buffer=pd.merge(codelist,cur_merge_df, how='left', on=['ts_code'])
             bufferdf=codelist['buy_amount']*codelist['lastprice']
             if(cur_date>20200805):
-                print(codelist)
+                pass
+                #print(codelist)
             #print(codelist)
             code_value_sum=bufferdf.sum()
             print(account+code_value_sum)
             print(cur_date)
             show3.append(account+code_value_sum)
 
-            last_cur_merge_df=cur_merge_df[["ts_code","mix_rank"]]
-            last_cur_merge_df.columns =['ts_code','last_mix_rank']
+            last_cur_merge_df=cur_merge_df[["ts_code","mix_rank","amount","close"]]
+            last_cur_merge_df.columns =['ts_code','last_mix_rank','last_amount',"last_close"]
             #print(last_cur_merge_df)
             days+=1
 
@@ -849,6 +873,17 @@ class CSZLDisplay(object):
         daysshow=days[eee]
         datashow=datelist[eee]
         #a = np.random.rand(days.shape[0], 1)
+
+
+        #a=np.array(show3)
+        #np.save('a.npy',a) # 保存为.npy格式
+
+        #a=np.load('a.npy')
+        #a=a.tolist()
+
+        #print(a)
+
+        #plt.plot(days,a,c='red',label='CB')
 
         if True :
             #000001.SH 上证 000016.SH 50 000688.SH 科创50 000905.SH 中证500 399006.SZ 创业板指

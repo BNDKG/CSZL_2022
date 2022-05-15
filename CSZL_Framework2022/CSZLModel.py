@@ -95,7 +95,7 @@ class CSZLModel(object):
         df_all=CSZLUtils.CSZLUtils.Loaddata(featurepath)
 
         #df_all=df_all[df_all['high_stop']==0]
-        #df_all=df_all[df_all['close']>2]
+        #df_all=df_all[df_all['close']<115]
         #df_all=df_all[df_all['amount']>15000]
 
         df_all.drop(['real_price'],axis=1,inplace=True)
@@ -131,6 +131,7 @@ class CSZLModel(object):
         df_all=pd.read_csv(featurepath,index_col=0,header=0)
 
         df_all=df_all[df_all['close']>2]
+        df_all=df_all[df_all['amount']>400]
         #df_all.dropna(axis=0,how='any',inplace=True)
 
         df_all.drop(['real_price'],axis=1,inplace=True)
@@ -494,7 +495,7 @@ class CSZLModel(object):
 
             #multlist=[-9.34,-5.48,-4.2,-3.4,-2.7,-2.3,-1.86,-1.47,-1.09,-0.74,-0.38,0,0.398,0.838,1.35,1.96,2.74,3.81,5.58,10.77]
             multlist=[-7.26,-3.64,-2.52,-1.95,-1.45,-1.15,-0.85,-0.63,-0.36,-0.14,0,0.26,0.56,0.81,1.15,1.53,2.08,2.89,4.44,10.48]
-
+            #multlist=[-3.55,-2.09,-1.55,-1.29,-1.00,-0.8,-0.6,-0.41,-0.25,-0.05,0.08,0.27,0.47,0.68,0.90,1.23,1.61,2.19,3.22,6.62]
 
             for i in range(20):
                 buffer=data1[i]*multlist[i]

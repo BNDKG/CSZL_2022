@@ -142,8 +142,71 @@ class CSZLUtils(object):
     def fun01():
         df=pd.read_csv("qwer.csv",index_col=0,header=0)
         df=df[df['tomorrow_chg']!=0]
+        df=df[df['close']<115]
+        
         grouped = df.groupby(['tomorrow_chg_rank']) # 对col1列进行分组
 
         zzzz2=grouped['tomorrow_chg'].mean() # 计算每个组col2列的均值
 
         print(zzzz2)
+
+
+    def changetoqlib():
+
+        #修改显示行列数
+        pd.set_option('display.width', 5000)
+        pd.set_option('display.max_rows', 500)
+        pd.set_option('display.max_columns', 500)
+
+        toqlib_df=pd.read_csv('qlib.csv',index_col=0,header=0)
+
+        ##xxxx
+        #dfbasic = pd.read_pickle('./Database/Dailydata.pkl')
+        #dfbasic=dfbasic[dfbasic['amount']>100000]
+
+        #toqlib_df=pd.merge(dfbasic, toqlib_df, how='left', on=['ts_code','trade_date'])
+        print(toqlib_df)
+        toqlib_df.dropna(axis=0, how='any', inplace=True)
+        print(toqlib_df)
+        toqlib_df=toqlib_df.reset_index(drop=True)
+
+        toqlib_df=toqlib_df.loc[:,['trade_date','ts_code','mix_rank']]
+
+        toqlib_df['trade_date'] = pd.to_datetime(toqlib_df['trade_date'], format='%Y%m%d')
+
+        toqlib_df['ts_codeL'] = toqlib_df['ts_code'].str[:6]
+        toqlib_df['ts_codeR'] = toqlib_df['ts_code'].str[7:]
+
+        toqlib_df['ts_code']=toqlib_df['ts_codeR'].str.cat(toqlib_df['ts_codeL'])
+
+        toqlib_df.drop(['ts_codeL','ts_codeR'],axis=1,inplace=True)
+
+        toqlib_df.rename(columns={'trade_date':'datetime','ts_code':'instrument', 'mix_rank':'score'}, inplace = True)
+
+        toqlib_df['score'].fillna(0, inplace=True)
+        print(toqlib_df)
+
+        toqlib_df.to_csv('qlibdataset.csv',index=None)
+
+        #toqlib_df2=pd.read_csv('qlibdataset.csv',index_col=0,header=0)     
+
+        #toqlib_df2.index = pd.to_datetime(toqlib_df2.index) 
+
+        #print(toqlib_df2)
+
+        intsdfafsd=6
+
+
+    def usehighamount():
+
+        df=pd.read_csv('ybb.csv',index_col=0,header=0)
+
+        df=df[df['amount']>100000]
+
+        print(df)
+
+        dfbasic = pd.read_pickle('./Database/Dailydata.pkl')
+
+        print(dfbasic)
+
+        intsdfafsd=6

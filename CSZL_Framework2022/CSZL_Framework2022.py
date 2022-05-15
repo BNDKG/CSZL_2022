@@ -2,7 +2,7 @@
 import sys
 import CSZLData
 import CSZLWorkflow
-
+import CSZLUtils
 
 if __name__ == '__main__':
 
@@ -15,7 +15,7 @@ if __name__ == '__main__':
         print("系统接收参数")
         print("CSZL2022 功能列表：\n 1:BackTesting \n 2:RealTimePredict \n 3:BackTesting_snowball\n"
                " 4:BackTesting_haitong\n 5:ServerRun\n 6:Convertible bond BackTesting\n 7:RealTimePredict_CB\n"
-               " 9:PKL2CSV")
+               " 8:Haitong2CSZL\n 9:PKL2CSV\n a:CB BackTesting_haitong\n b:changetoqlib")
         action=input()
 
 
@@ -30,39 +30,26 @@ if __name__ == '__main__':
         zzzz.Haitong2CSZL()
         zzzz.Todays_action('last_result_real.csv',"Today_result.csv",5,7000)
     elif action=='3':
-        zzzz.BackTesting_static_0501()
+        zzzz.BackTesting_static_0515()
         zzzz.Todays_action('last_result_snowball.csv','Today_NEXT_predict.csv',2,200000)
     elif action=='4':
-        zzzz.BackTesting_static_0501()
+        zzzz.BackTesting_static_0515()
         zzzz.Haitong2CSZL()
         zzzz.Todays_action('last_result_real.csv','Today_NEXT_predict.csv',5,7000)
     elif action=='5':
         zzzz.PredictBackRound()
 
     elif action=='6':
-
+        
+        #CSZLUtils.CSZLUtils.fun01()
         zzzz.CBBackTesting()
 
         pass
     elif action=='7':
 
-        #import numpy as np
-
-        #a=[1233,34,67,4]
-        #a=np.array(a)
-        #np.save('a.npy',a) # 保存为.npy格式
-
-        #a=np.load('a.npy')
-        #a=a.tolist()
-
-        #print(a)
-
         zzzz.RealTimePredict_CB()
-
-        #CSZLData.CSZLDataWithoutDate.get_realtime_quotes_CB()
-
-        #CSZLData.CSZLDataWithoutDate.get_cb_basic()
-
+        zzzz.Haitong2CSZL_CB()
+        zzzz.Todays_action_CB('last_result_real_CB.csv',"Today_result_CB.csv",4,7000)
 
         pass
 
@@ -71,6 +58,16 @@ if __name__ == '__main__':
 
     elif action=='9':
         zzzz.PKL2CSV()
+
+    elif action=='a':
+        zzzz.CBBackTesting_static_0515()
+        zzzz.Haitong2CSZL_CB()
+        zzzz.Todays_action_CB('last_result_real_CB.csv','Today_NEXT_predict_CB.csv',4,200000)
+
+    elif action=='b':
+        CSZLUtils.CSZLUtils.changetoqlib()
+
+
 
     #elif action=='5':
     #    zzzz.Todays_action('last_result_real.csv',"Today_result.csv",5,7000)
