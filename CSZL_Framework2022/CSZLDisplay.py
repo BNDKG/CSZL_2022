@@ -28,7 +28,7 @@ class CSZLDisplay(object):
         score_df = pd.read_csv(resultpath,index_col=0,header=0)
         #score_df=score_df[['ts_code','trade_date','mix']]
         
-        score_df=score_df[['ts_code','trade_date','mix_rank','Shift_1total_mv_rank','close_show']]
+        score_df=score_df[['ts_code','trade_date','mix_rank','Shift_1total_mv_rank','close_show','0']]
 
         #score_df = pd.read_csv('zzzzfackdatapred_fullold.csv',index_col=0,header=0)
         
@@ -37,8 +37,8 @@ class CSZLDisplay(object):
 
         #hold_all=5
         #change_num=1
-        hold_all=30
-        change_num=5
+        hold_all=15
+        change_num=2
         account=100000000
         accountbase=account
         buy_pct=0.9
@@ -62,12 +62,18 @@ class CSZLDisplay(object):
         datelist=score_df['trade_date'].unique()
         cur_hold_num=0
         print(datelist)
+        datelist=datelist[datelist>20220101]
     
+        curMax=0
+        curMaxDropDown=0
 
         days=0
         show3=[]
 
         last_cur_merge_df=[]
+
+        holdlists=pd.DataFrame(columns=('trade_date','ts_code','lastprice','buy_amount','last_adj_factor','last_action_flag'))
+        allvalue=0
 
         for cur_date in datelist:
 
@@ -89,6 +95,15 @@ class CSZLDisplay(object):
             if codelist.shape[0]>0 :
 
                 codelist_buffer=pd.merge(codelist,cur_merge_df, how='left', on=['ts_code'])
+
+                addholdlistb=codelist_buffer[['ts_code','lastprice','buy_amount','last_adj_factor','last_action_flag','pct_chg']]
+                addholdlist=addholdlistb.copy(deep=True)
+                addholdlist.reset_index(inplace=True,drop=True)
+
+                addholdlist.loc[:,'trade_date']=cur_date
+                addholdlist.loc[:,'allvalue']=allvalue
+                holdlists=holdlists.append(addholdlist)
+
                 #刷新停牌的close和adj价值
                 codelist_buffer['adj_factor'].fillna(9999.99, inplace=True)
                 codelist_buffer['close'].fillna(9999.99, inplace=True)
@@ -218,7 +233,11 @@ class CSZLDisplay(object):
                     buylist=test.sort_values(by=['last_mix_rank'])
 
                 #错误示范，预知未来
-                buylist=buylist[buylist['last_amount']>1500]
+                buylist=buylist[buylist['last_amount']>15000]
+                #avg0=(buylist['last_0'].mean())
+                #buylist=buylist[buylist['last_0']>avg0]
+                #buylist=buylist[buylist['pre_close']>10]
+                buylist=buylist[buylist['ts_code'].str.startswith('688')==False]
                 #buylist.to_csv("comp.csv")
                 #print(buylist)
                 buylist=buylist.tail(buynum)
@@ -249,20 +268,35 @@ class CSZLDisplay(object):
             #print(codelist)
             #codelist_buffer=pd.merge(codelist,cur_merge_df, how='left', on=['ts_code'])
             bufferdf=codelist['buy_amount']*codelist['lastprice']
-            #if(cur_date>20171018):
-            #    print(codelist)
+            if(cur_date>20220601):
+                print(codelist)
             #print(codelist)
-            code_value_sum=bufferdf.sum()
-            print(account+code_value_sum)
-            print(cur_date)
-            show3.append(account+code_value_sum)
 
-            last_cur_merge_df=cur_merge_df[["ts_code","mix_rank","amount"]]
-            last_cur_merge_df.columns =['ts_code','last_mix_rank','last_amount']
+
+            code_value_sum=bufferdf.sum()
+            allvalue=account+code_value_sum
+
+            #计算max drop down
+            if(curMax<allvalue):
+                curMax=allvalue
+
+            curDropDown=(curMax-allvalue)/curMax
+            
+            if(curMaxDropDown<curDropDown):
+                curMaxDropDown=curDropDown
+
+            print(curMaxDropDown)
+            print(allvalue)
+            print(cur_date)
+            
+            show3.append(allvalue)
+
+            last_cur_merge_df=cur_merge_df[["ts_code","mix_rank","amount","0"]]
+            last_cur_merge_df.columns =['ts_code','last_mix_rank','last_amount','last_0']
             #print(last_cur_merge_df)
             days+=1
 
-
+        holdlists.to_csv("seebug.csv")
 
         days=np.arange(1,datelist.shape[0]+1)
 
@@ -304,7 +338,7 @@ class CSZLDisplay(object):
             plt.plot(days,baseline4,c='k',label=baselinecode)
 
         print(show3)
-        plt.plot(days,show3,c='green',label="TOPK_open_head30")
+        plt.plot(days,show3,c='green',label="TOPK _open_head30")
 
         plt.xticks(daysshow, datashow,color='blue',rotation=60)
 
@@ -632,7 +666,7 @@ class CSZLDisplay(object):
         account=100000000
         accountbase=account
         buy_pct=0.9
-        Trans_cost=0.9997        #千三
+        Trans_cost=0.998        #千二
         # balance random none small
         choicepolicy="small"
 
@@ -653,6 +687,9 @@ class CSZLDisplay(object):
         cur_hold_num=0
         print(datelist)
     
+
+        curMax=0
+        curMaxDropDown=0
 
         days=0
         show3=[]
@@ -809,7 +846,7 @@ class CSZLDisplay(object):
 
                     pass
                     #print(buylist)
-                    buylist=buylist[buylist['last_amount']>1500]
+                    buylist=buylist[buylist['last_amount']>500]
                     buylist=buylist[buylist['last_close']<120]
                     #buylist = buylist[buylist['open']<120]
                     #buylist['amount_rank']=buylist['amount'].rank(pct=True)
@@ -817,8 +854,6 @@ class CSZLDisplay(object):
                     #buylist = buylist[buylist['amount']>5000]
                     buylist=buylist.sort_values(by=['last_mix_rank'])
                     #print(buylist)
-
-
 
 
                 #print(buylist)
@@ -855,7 +890,20 @@ class CSZLDisplay(object):
                 #print(codelist)
             #print(codelist)
             code_value_sum=bufferdf.sum()
-            print(account+code_value_sum)
+            allvalue=account+code_value_sum
+
+
+            #计算max drop down
+            if(curMax<allvalue):
+                curMax=allvalue
+
+            curDropDown=(curMax-allvalue)/curMax
+            
+            if(curMaxDropDown<curDropDown):
+                curMaxDropDown=curDropDown
+
+            print(curMaxDropDown)
+            print(allvalue)
             print(cur_date)
             show3.append(account+code_value_sum)
 

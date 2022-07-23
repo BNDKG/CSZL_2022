@@ -55,6 +55,7 @@ if __name__ == '__main__':
 
     elif action=='8':
         zzzz.Haitong2CSZL()
+        zzzz.Haitong2CSZL_CB()
 
     elif action=='9':
         zzzz.PKL2CSV()
@@ -67,6 +68,13 @@ if __name__ == '__main__':
     elif action=='b':
         CSZLUtils.CSZLUtils.changetoqlib()
 
+    elif action=='c':
+        zzzzd=CSZLUtils.CSZLUtils.TimeUpper(2118)
+
+        print(zzzzd)
+
+    elif action=='d':
+        zzzz.PredictBackRound_CB()
 
 
     #elif action=='5':

@@ -23,31 +23,46 @@ class CSZLWorkflow(object):
         #zzzz.getDataSet_all(Default_folder_path)
 
         #"20150801","20220425"
-        dayA='20130101'#nomal/small
-        dayB='20170301'
-        #dayB='20200101'
-        #dayA='20150801'#nomal/small
-        #dayB='20220425'
-        dayC='20170301'
-        dayD='20220425'
-
-        dayA='20150801'#nomal/small
-        dayB='20220425'
-        dayC='20220201'
-        dayD='20220513'
-
-
-        #dayA='20190101'#nomal/small
-        #dayB='20190601'
-        #dayC='20210101'
+        #dayA='20130101'#nomal/small
+        #dayB='20170301'
+        ##dayB='20200101'
+        ##dayA='20150801'#nomal/small
+        ##dayB='20220425'
+        #dayC='20170301'
         #dayD='20220425'
 
+        #dayA='20150801'#nomal/small
+        #dayB='20220425'
+        #dayC='20220201'
+        #dayD='20220513'
+
+
+        #dayA='20140101'#nomal/small
+        #dayB='20200601'
+        #dayC='20200601'
+        #dayD='20220708'
+
+        dayA='20140101'#nomal/small
+        dayB='20180601'
+        dayC='20200601'
+        dayD='20220617'
+        dayD='20220712'
+        #dayC='20140101'#nomal/small
+        #dayD='20200601'
+        #dayA='20200601'
+        #dayB='20220708'
+
+        #dayC='20140101'#nomal/small
+        #dayD='20200601'
+        #dayA='20200601'
+        #dayB='20220513'
+
         zzzz=FE.CSZLFeatureEngineering(dayA,dayB,Default_folder_path)
-        trainpath=zzzz.FE05()
+        trainpath=zzzz.FE06()
         #zzzz=FE.CSZLFeatureEngineering("20170301","20220301",Default_folder_path)
         #testpath=zzzz.FE03()
         zzzz=FE.CSZLFeatureEngineering(dayC,dayD,Default_folder_path)
-        testpath=zzzz.FE05()
+        testpath=zzzz.FE06()
 
         #zzzz=FE.CSZLFeatureEngineering("20220101","20220408",Default_folder_path)
         #testpath=zzzz.FE03()
@@ -165,7 +180,7 @@ class CSZLWorkflow(object):
         #dayB='20220425'
         dayC=Day_start
         dayD=Day_now
-        dayD='20220513'
+        #dayD='20220517'
 
         zzzz=FE.CSZLFeatureEngineering(dayA,dayB,Default_folder_path)
         trainpath=zzzz.FE05()
@@ -342,12 +357,13 @@ class CSZLWorkflow(object):
         Default_folder_path='D:/temp2/'
 
         dayA='20130101'#nomal/small
-        dayB='20220501'
+        dayB='20200101'
 
-        dayC='20220301'
+        dayC='20200101'
         dayD='20220505'
+        dayD='20220527'
         #dayD='20220506'
-        dayD='20220513'
+        #dayD='20220513'
 
         zzzz=FE.CSZLFeatureEngineering(dayA,dayB,Default_folder_path)
         trainpath=zzzz.FECB03()
@@ -437,7 +453,7 @@ class CSZLWorkflow(object):
 
         dayC=Day_start
         dayD=Day_now
-        dayD='20220513'
+        #dayD='20220517'
 
         zzzz=FE.CSZLFeatureEngineering(dayA,dayB,Default_folder_path)
         trainpath=zzzz.FECB03()
@@ -477,7 +493,7 @@ class CSZLWorkflow(object):
         pd.set_option('display.max_rows', 500)
         pd.set_option('display.max_columns', 500)
 
-        if False:
+        if True:
             df_stocklist=pd.read_csv(CSZLData.CSZLDataWithoutDate.get_stocklist(),index_col=0,header=0)
         else:
             df_stocklist=pd.read_csv("./Database/stocklist.csv",index_col=0,header=0)
@@ -590,8 +606,8 @@ class CSZLWorkflow(object):
         pd.set_option('display.max_rows', 500)
         pd.set_option('display.max_columns', 500)
 
-        if False:
-            df_stocklist=pd.read_csv(CSZLData.CSZLDataWithoutDate.get_stocklist(),index_col=0,header=0)
+        if True:
+            df_stocklist=pd.read_csv(CSZLData.CSZLDataWithoutDate.get_cb_basic(),index_col=0,header=0)
         else:
             df_stocklist=pd.read_csv("./Database/cb_basic.csv",index_col=0,header=0)
         
@@ -654,6 +670,18 @@ class CSZLWorkflow(object):
         #防止无法买入，加的判断条件
         df_choiceset=df_choiceset[df_choiceset['close_show']<(singleamout/10)]
         df_choiceset=df_choiceset[df_choiceset['close_show']<115]
+
+        amountlimit=1000
+        if CSZLUtils.CSZLUtils.TimeUpper(1430):
+            amountlimit=1000
+        elif CSZLUtils.CSZLUtils.TimeUpper(1330):
+            amountlimit=700
+        elif CSZLUtils.CSZLUtils.TimeUpper(1030):
+            amountlimit=500
+        elif CSZLUtils.CSZLUtils.TimeUpper(930):
+            amountlimit=300
+
+        df_choiceset=df_choiceset[df_choiceset['amount_show']>amountlimit]
 
         df_choiceset=df_choiceset.sort_values(by=['num_rank'])
         df_choiceset=df_choiceset.head(changenum_real)
@@ -817,6 +845,31 @@ class CSZLWorkflow(object):
             print(date)
             time.sleep(10)
 
+
+    def PredictBackRound_CB(self):
+
+        cur_date=datetime.datetime.now().strftime("%Y-%m-%d")
+        change_flag=0
+        while(True):
+            date=datetime.datetime.now()
+            day = date.weekday()
+            if(day>4):
+                time.sleep(10000)
+                continue
+                dawd=5
+
+
+            if(self.TimeCheck()):       
+
+                self.RealTimePredict_CB()
+                self.Todays_action_CB('last_result_real_CB.csv',"Today_result_CB.csv",4,7000,True)
+
+                print("Today_over")
+                time.sleep(10000)      
+
+            print(date)
+            time.sleep(10)
+
     def PKL2CSV(self):
 
         sourcepath="./transform"
@@ -851,7 +904,7 @@ class CSZLWorkflow(object):
 
         #return True
 
-        if (caltemp>=1450 and caltemp<=1500):
+        if (caltemp>=1452 and caltemp<=1500):
             return True
         else:
             return False 

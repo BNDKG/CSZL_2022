@@ -79,6 +79,31 @@ class CSZLFeatureEngineering(object):
 
         return savepath8
 
+    def FE06(self):
+
+
+        savepath =self.create_trainingdatasets(self.create_target)
+        savepath2 =self.create_trainingdatasets(self.create_Limitfeature)
+        savepath3 =self.create_trainingdatasets(self.create_dayfeature6)
+        savepath4 =self.create_trainingdatasets(self.create_Longfeature)
+        savepath5 =self.create_trainingdatasets(self.create_Moneyflowfeature2)
+
+        #函数名，区别数字(例如shift 1 就填入1)，区别函数(例如 Moneyflowpath)
+        savepath6 =self.create_trainingdatasets(self.create_Shiftfeatures,1,savepath4)
+        savepath7 =self.create_trainingdatasets(self.create_Shiftfeatures,1,savepath5)
+
+        funname=sys._getframe().f_code.co_name
+        funpath=self.Default_folder_path+funname+self.start_date+"to"+self.end_date+".pkl"
+
+        #savepath8 =self.create_trainingdatasets(self.create_joinfeatures,0,funpath,[savepath,savepath2,savepath3,savepath6,savepath7])
+        savepath8 =self.create_trainingdatasets(self.create_joinfeatures_large,0,funpath,[savepath,savepath2,savepath3,savepath6,savepath7])
+
+
+        #self.create_Shiftfeatures(mpath,"Moneyflow",1)
+        #self.create_Shiftfeatures(lpath,"Longfeature",1)
+
+        return savepath8
+
     def FE04(self):
 
 
@@ -279,6 +304,33 @@ class CSZLFeatureEngineering(object):
 
         return df
 
+    def create_joinfeatures_large(self,arges):
+
+        features=arges[2]
+
+        df=[]
+        count=0
+        for featurename in features:
+            if count==0:
+                #df=pd.read_csv(featurename,index_col=0,header=0)
+                df=CSZLUtils.CSZLUtils.Loaddata(featurename)
+                #df=pd.read_pickle(featurename)
+                count+=1
+                continue
+            #df2=pd.read_csv(featurename,index_col=0,header=0)
+            df2=CSZLUtils.CSZLUtils.Loaddata(featurename)
+            #df2=pd.read_pickle(featurename)
+            df=pd.merge(df, df2, how='left', on=['ts_code','trade_date'])
+            del df2
+            gc.collect()
+            count+=1
+
+        df=df.replace(np.nan, 0)
+
+        df=df[df['amount_rank']>0.8]
+
+        return df
+
     def create_joinfeatures_real(self,features):
 
         df=[]
@@ -474,6 +526,124 @@ class CSZLFeatureEngineering(object):
         df.loc[df['pct_chg']>9.4,'high_stop']=1
 
         df['chg_rank']=df.groupby('trade_date')['pct_chg'].rank(pct=True)
+        df['pct_chg_abs']=df['pct_chg'].abs()
+        df['pct_chg_abs_rank']=df.groupby('trade_date')['pct_chg_abs'].rank(pct=True)
+
+        #计算三种比例rank
+        dolist=['open','high','low']
+
+        df['pct_chg_r']=df['pct_chg']
+
+        for curc in dolist:
+            buffer=((df[curc]-df['pre_close'])*100)/df['pre_close']
+            df[curc]=buffer
+            df[curc]=df.groupby('trade_date')[curc].rank(pct=True)
+
+        #print(df)
+
+        df=self.OldFeaturesRank(df,['open','high','low','pct_chg_r'],1)
+
+        df=self.InputChgSumRank(df,6,'pct_chg_abs')
+        df=self.InputChgSumRank(df,3,'pct_chg')
+        df=self.InputChgSumRank(df,6,'pct_chg')
+        df=self.InputChgSumRank(df,12,'pct_chg')
+        df=self.InputChgSumRank(df,24,'pct_chg')
+
+        df=self.InputChgSum(df,3,'pct_chg')
+        df=self.InputChgSum(df,6,'pct_chg')
+        df=self.InputChgSum(df,12,'pct_chg')
+        df=self.InputChgSum(df,24,'pct_chg')
+
+        #df['chg_rank_24_diff']=df['chg_rank_24']-df['chg_rank_12']
+        #df['chg_rank_12_diff']=df['chg_rank_12']-df['chg_rank_6']
+        #df['chg_rank_6_diff']=df['chg_rank_6']-df['chg_rank_3']
+
+        #df['pct_chg_24_diff']=df['pct_chg_24']-df['pct_chg_12']
+        #df['pct_chg_12_diff']=df['pct_chg_12']-df['pct_chg_6']
+        #df['pct_chg_6_diff']=df['pct_chg_6']-df['pct_chg_3']
+
+        df=self.HighLowRange(df,5)
+        df=self.HighLowRange(df,12)
+        df=self.HighLowRange(df,25)
+
+
+        df=self.CloseWithHighLow(df,5)
+        df=self.CloseWithHighLow(df,12)
+        df=self.CloseWithHighLow(df,25)
+        df=self.CloseWithHighLow(df,5,'max')
+        df=self.CloseWithHighLow(df,12,'max')
+        df=self.CloseWithHighLow(df,25,'max')
+
+        #df['25_pct_rank_min_diff']=df['25_pct_rank_min']-df['12_pct_rank_min']
+        #df['12_pct_rank_min_diff']=df['12_pct_rank_min']-df['5_pct_rank_min']
+
+        #df['25_pct_rank_max_diff']=df['25_pct_rank_max']-df['12_pct_rank_max']
+        #df['12_pct_rank_max_diff']=df['12_pct_rank_max']-df['5_pct_rank_max']
+
+        #df['25_pct_Rangerank_diff']=df['25_pct_Rangerank']-df['12_pct_Rangerank']
+        #df['12_pct_Rangerank_diff']=df['12_pct_Rangerank']-df['5_pct_Rangerank']
+
+
+        #df.to_csv("dfsdf.csv")
+
+        del df2
+        gc.collect()
+        
+        return df
+
+    def create_dayfeature6(self,arges):
+
+        df=self.LoaddfDailydata().copy(deep=True)
+        df2=self.LoaddfAdj_factor().copy(deep=True)
+
+        if arges:
+
+            loadpath="real_buffer.csv"
+            df_today=pd.read_csv(loadpath,index_col=0,header=0)
+            df_today['trade_date']=arges
+
+            df['ts_code']=df['ts_code'].apply(lambda x : x[:-3])
+            df_today['ts_code']=df_today['ts_code'].apply(lambda x:str(x).zfill(6))
+
+            df = df.append(df_today, ignore_index=True)
+
+            lastday=df2['trade_date'].max()
+            df2['ts_code']=df2['ts_code'].apply(lambda x : x[:-3])
+            copy_df=df2[df2['trade_date']==lastday]
+            copy_df.loc[:,'trade_date']=arges
+            
+            df2 = df2.append(copy_df, ignore_index=True)
+
+
+        df=pd.merge(df, df2, how='inner', on=['ts_code','trade_date'])
+
+        df['real_price']=df['close']*df['adj_factor']
+
+        df=df[["ts_code","trade_date","real_price","open","high","low","pct_chg","pre_close","close","amount"]]
+
+        df=self.InputChgSum(df,3,'amount')
+        df=self.InputChgSum(df,6,'amount')
+        df=self.InputChgSum(df,12,'amount')
+        df=self.InputChgSum(df,24,'amount')
+
+        df['am_pct_1_3']=df['amount_3']/df['amount']
+        df['am_pct_3_6']=df['amount_6']/df['amount_3']
+        df['am_pct_6_12']=df['amount_12']/df['amount_6']
+        df['am_pct_12_24']=df['amount_24']/df['amount_12']
+
+        df['am_rank_1_3']=df.groupby('trade_date')['am_pct_1_3'].rank(pct=True)
+        df['am_rank_3_6']=df.groupby('trade_date')['am_pct_3_6'].rank(pct=True)
+        df['am_rank_6_12']=df.groupby('trade_date')['am_pct_6_12'].rank(pct=True)
+        df['am_rank_12_24']=df.groupby('trade_date')['am_pct_12_24'].rank(pct=True)
+
+        #print(df)
+
+        df['high_stop']=0
+        df.loc[df['pct_chg']>9.4,'high_stop']=1
+
+        df['chg_rank']=df.groupby('trade_date')['pct_chg'].rank(pct=True)
+        df['amount_rank']=df.groupby('trade_date')['amount'].rank(pct=True)
+
         df['pct_chg_abs']=df['pct_chg'].abs()
         df['pct_chg_abs_rank']=df.groupby('trade_date')['pct_chg_abs'].rank(pct=True)
 

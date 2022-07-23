@@ -131,7 +131,7 @@ class CSZLModel(object):
         df_all=pd.read_csv(featurepath,index_col=0,header=0)
 
         df_all=df_all[df_all['close']>2]
-        df_all=df_all[df_all['amount']>400]
+        #df_all=df_all[df_all['amount']>1000]
         #df_all.dropna(axis=0,how='any',inplace=True)
 
         df_all.drop(['real_price'],axis=1,inplace=True)
@@ -469,9 +469,9 @@ class CSZLModel(object):
         else:
             mixdf=pd.read_pickle(featurepath)
         print(mixdf)
-        mixdf=mixdf[['ts_code','trade_date','close']]
+        mixdf=mixdf[['ts_code','trade_date','close','amount']]
         
-        mixdf.rename(columns = {"close":"close_show"},  inplace=True)
+        mixdf.rename(columns = {"close":"close_show","amount":"amount_show"},  inplace=True)
         print(mixdf)
 
         if os.path.exists(predictname)==True and (not real_predict):

@@ -4,6 +4,7 @@ import os
 import shutil
 import numpy as np
 import pandas as pd
+import time
 
 class CSZLUtils(object):
     """description of class"""
@@ -167,6 +168,9 @@ class CSZLUtils(object):
         #toqlib_df=pd.merge(dfbasic, toqlib_df, how='left', on=['ts_code','trade_date'])
         print(toqlib_df)
         toqlib_df.dropna(axis=0, how='any', inplace=True)
+
+        toqlib_df=toqlib_df[toqlib_df['close_show']>10]
+
         print(toqlib_df)
         toqlib_df=toqlib_df.reset_index(drop=True)
 
@@ -210,3 +214,21 @@ class CSZLUtils(object):
         print(dfbasic)
 
         intsdfafsd=6
+
+
+    def TimeUpper(checktime):
+        global CurHour
+        global CurMinute
+
+
+        CurHour=int(time.strftime("%H", time.localtime()))
+        CurMinute=int(time.strftime("%M", time.localtime()))
+
+        caltemp=CurHour*100+CurMinute
+
+        #return True
+
+        if (caltemp>=checktime):
+            return True
+        else:
+            return False 

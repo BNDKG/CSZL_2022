@@ -412,8 +412,9 @@ class CSZLDataWithoutDate(object):
         df = pro.cb_basic(fields="ts_code,bond_short_name,stk_code,stk_short_name,list_date,conv_price,delist_date,issue_rating")
 
         print(df)
-        df.to_csv("cb_basic.csv",encoding='utf-8-sig')
+        savepth=savedir+'/cb_basic.csv'
+        df.to_csv(savepth,encoding='utf-8-sig')
 
-
+        return savepth
 
         pass
