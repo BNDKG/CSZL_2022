@@ -73,10 +73,13 @@ class CSZLModel(object):
         #df_all=pd.read_pickle(featurepath)
         df_all=CSZLUtils.CSZLUtils.Loaddata(featurepath)
 
+        #TODO tushare问题，暂时直接允许688开头来防止
+        df_all.loc[df_all['ts_code'].str.startswith('68')==True,'st_or_otherwrong']=1
+
         df_all=df_all[df_all['st_or_otherwrong']==1]
         df_all=df_all[df_all['high_stop']==0]
         df_all=df_all[df_all['close']>2]
-        df_all=df_all[df_all['amount']>15000]
+        #df_all=df_all[df_all['amount']>15000]
 
         df_all.drop(['st_or_otherwrong','real_price'],axis=1,inplace=True)
 
@@ -111,6 +114,9 @@ class CSZLModel(object):
     def LGBdatasetrealpredictprepar(self,featurepath):
 
         df_all=pd.read_csv(featurepath,index_col=0,header=0)
+
+        #TODO tushare问题，暂时直接允许688开头来防止
+        #df_all.loc[df_all['ts_code'].str.startswith('68')==True,'st_or_otherwrong']=1
 
         df_all=df_all[df_all['st_or_otherwrong']==1]
         df_all=df_all[df_all['high_stop']==0]
@@ -156,6 +162,46 @@ class CSZLModel(object):
                                         num_class=20,
                                         n_jobs=-1)
 
+
+
+        return lgb_model,pklname
+
+    def LGBmodel_004(self,pklname):
+
+        pklname=pklname+sys._getframe().f_code.co_name
+
+        #weights={0:2,1:1,2:1,3:1,4:1,5:1,6:1,7:1,8:1,9:1,10:1,11:1,12:1,13:1,14:1,15:1,16:1,17:1,18:1,19:2}
+        weights={0:1,1:1,2:1,3:1,4:1,5:1,6:1,7:1,8:1,9:1,10:1,11:1,12:1,13:1,14:1,15:1,16:1,17:1,18:1,19:1}
+
+        lgb_model = lgb.LGBMClassifier(max_depth=-1,
+                                        n_estimators=100,
+                                        learning_rate=0.05,
+                                        num_leaves=2**8-1,
+                                        colsample_bytree=0.6,
+                                        objective='multiclass', 
+                                        num_class=20,
+                                        class_weight=weights,
+                                        n_jobs=-1)
+
+
+        return lgb_model,pklname
+
+    def LGBmodel_005(self,pklname):
+
+        pklname=pklname+sys._getframe().f_code.co_name
+
+        #weights={0:2,1:1,2:1,3:1,4:1,5:1,6:1,7:1,8:1,9:1,10:1,11:1,12:1,13:1,14:1,15:1,16:1,17:1,18:1,19:2}
+        weights={0:1,1:1,2:1,3:1,4:1,5:1,6:1,7:1,8:1,9:1,10:1,11:1,12:1,13:1,14:1,15:1,16:1,17:1,18:1,19:1}
+
+        lgb_model = lgb.LGBMClassifier(max_depth=-1,
+                                        n_estimators=60,
+                                        learning_rate=0.05,
+                                        num_leaves=2**8-1,
+                                        colsample_bytree=0.6,
+                                        objective='multiclass', 
+                                        num_class=20,
+                                        class_weight=weights,
+                                        n_jobs=-1)
 
 
         return lgb_model,pklname
@@ -232,7 +278,7 @@ class CSZLModel(object):
                             #sample_weight=sample_weights,
                             #eval_sample_weight=[sample_weight_vals],
                             #categorical_feature=[5,],
-                            verbose=100, early_stopping_rounds=None)
+                            verbose=10, early_stopping_rounds=None)
 
             savepath_new=pklname+'_'+str(counter)+".pkl"
             joblib.dump(usemodel,savepath_new)     
@@ -426,7 +472,8 @@ class CSZLModel(object):
 
             data1['mix']=0
 
-            multlist=[-9.34,-5.48,-4.2,-3.4,-2.7,-2.3,-1.86,-1.47,-1.09,-0.74,-0.38,0,0.398,0.838,1.35,1.96,2.74,3.81,5.58,10.77]
+            #multlist=[-9.34,-5.48,-4.2,-3.4,-2.7,-2.3,-1.86,-1.47,-1.09,-0.74,-0.38,0,0.398,0.838,1.35,1.96,2.74,3.81,5.58,10.77]
+            multlist=[-40.34,-5.48,-4.2,-3.4,-2.7,-2.3,-1.86,-1.47,-1.09,-0.74,-0.38,0,0.398,0.838,1.35,1.96,2.74,3.81,5.58,40.77]
 
             for i in range(20):
                 buffer=data1[i]*multlist[i]

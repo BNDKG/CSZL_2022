@@ -9,6 +9,8 @@ import CSZLUtils
 import pandas as pd
 import datetime
 import time
+#import xlrd
+
 
 class CSZLWorkflow(object):
     """各种workflow 主要就是back testing"""
@@ -22,60 +24,54 @@ class CSZLWorkflow(object):
 
         #zzzz.getDataSet_all(Default_folder_path)
 
-        #"20150801","20220425"
-        #dayA='20130101'#nomal/small
-        #dayB='20170301'
-        ##dayB='20200101'
-        ##dayA='20150801'#nomal/small
-        ##dayB='20220425'
-        #dayC='20170301'
-        #dayD='20220425'
+        backtestmode='real'
 
-        #dayA='20150801'#nomal/small
-        #dayB='20220425'
-        #dayC='20220201'
-        #dayD='20220513'
-
-
-        #dayA='20140101'#nomal/small
-        #dayB='20200601'
-        #dayC='20200601'
-        #dayD='20220708'
-
-        dayA='20140101'#nomal/small
+        dayA='20130101'
         dayB='20180601'
-        dayC='20200601'
-        dayD='20220617'
-        dayD='20220712'
-        #dayC='20140101'#nomal/small
-        #dayD='20200601'
-        #dayA='20200601'
-        #dayB='20220708'
+        dayC='20220501'
+        dayD='20220930'
 
-        #dayC='20140101'#nomal/small
-        #dayD='20200601'
-        #dayA='20200601'
-        #dayB='20220513'
+        if backtestmode=='reverse':
+            dayA='20180601'
+            dayB='20220817'
+            dayC='20130101'
+            dayD='20180601'
+
+        elif backtestmode=='little':
+            dayA='20200101'
+            dayB='20200601'
+            dayC='20220101'
+            dayD='20220817'
+
+        elif backtestmode=='nomal':
+            dayA='20130101'
+            dayB='20180601'
+            dayC='20180601'
+            dayD='20220817'
+
+        elif backtestmode=='small':
+            dayA='20170101'
+            dayB='20200601'
+            dayC='20200601'
+            dayD='20220817'
+
+        elif backtestmode=='smallreverse':
+            dayA='20200601'
+            dayB='20220817'
+            dayC='20170101'
+            dayD='20200601'
+
+        elif backtestmode=='real':
+            dayA='20140601'
+            dayB='20220801'
+            dayC='20220501'
+            dayD='20221028'
 
         zzzz=FE.CSZLFeatureEngineering(dayA,dayB,Default_folder_path)
-        trainpath=zzzz.FE06()
-        #zzzz=FE.CSZLFeatureEngineering("20170301","20220301",Default_folder_path)
-        #testpath=zzzz.FE03()
+        trainpath=zzzz.FE09d()
+
         zzzz=FE.CSZLFeatureEngineering(dayC,dayD,Default_folder_path)
-        testpath=zzzz.FE06()
-
-        #zzzz=FE.CSZLFeatureEngineering("20220101","20220408",Default_folder_path)
-        #testpath=zzzz.FE03()
-
-        #zzzz=FE.CSZLFeatureEngineering("20190101","20190301",Default_folder_path)
-        #trainpath=zzzz.FE03()
-        #zzzz=FE.CSZLFeatureEngineering("20220101","20220301",Default_folder_path)
-        #testpath=zzzz.FE03()
-
-        #zzzz=FE.CSZLFeatureEngineering("20190101","20210101",Default_folder_path)
-        #trainpath=zzzz.FE03()
-        #zzzz=FE.CSZLFeatureEngineering("20220101","20220401",Default_folder_path)
-        #testpath=zzzz.FE03()
+        testpath=zzzz.FE09d()
 
 
         cur_model=CSZLModel.CSZLModel()
@@ -98,6 +94,7 @@ class CSZLWorkflow(object):
         #copy_df.to_csv("Today_NEXT_predict.csv")
 
         curdisplay=CSZLDisplay.CSZLDisplay()
+        #curdisplay.Topk_nextopen_trend(resultpath)
         curdisplay.Topk_nextopen(resultpath)
 
         pass
@@ -210,6 +207,114 @@ class CSZLWorkflow(object):
 
         pass
 
+    def BackTesting_static_0814(self):
+
+        #生成需要的数据集
+        nowTime=datetime.datetime.now()
+        delta = datetime.timedelta(days=63)
+        delta_one = datetime.timedelta(days=1)
+        LastTime=nowTime-delta_one
+        month_ago = LastTime - delta
+        month_ago_next=month_ago+delta_one
+        Day_start=month_ago_next.strftime('%Y%m%d')  
+        Day_end=LastTime.strftime('%Y%m%d')  
+        Day_now=nowTime.strftime('%Y%m%d')
+
+        #Default_folder_path='./temp2/'
+        Default_folder_path='D:/temp2/'
+
+        dayA='20130101'#nomal/small
+        dayB='20220805'
+
+
+        #dayA='20150801'#nomal/small
+        #dayB='20220425'
+        dayC=Day_start
+        dayD=Day_now
+        #dayD='20220517'
+
+        zzzz=FE.CSZLFeatureEngineering(dayA,dayB,Default_folder_path)
+        trainpath=zzzz.FE05()
+
+        zzzz=FE.CSZLFeatureEngineering(dayC,dayD,Default_folder_path)
+        testpath=zzzz.FE05()
+
+        cur_model=CSZLModel.CSZLModel()
+
+        cur_model_path=cur_model.LGBmodeltrain(trainpath)
+
+        cur_model.LGBmodelpredict(testpath,cur_model_path)
+
+
+        resultpath=cur_model.MixOutputresult_groupbalence(testpath,cur_model_path)
+
+        today_df = pd.read_csv(resultpath,index_col=0,header=0)
+
+        lastday=today_df['trade_date'].max()
+        today_df['ts_code']=today_df['ts_code'].apply(lambda x : x[:-3])
+        copy_df=today_df[today_df['trade_date']==lastday]
+        copy_df.to_csv("Today_NEXT_predict.csv")
+
+
+        #curdisplay=CSZLDisplay.CSZLDisplay()
+        #curdisplay.Topk_nextopen(resultpath)
+
+        pass
+
+    def BackTesting_static_0828(self):
+
+        #生成需要的数据集
+        nowTime=datetime.datetime.now()
+        delta = datetime.timedelta(days=63)
+        delta_one = datetime.timedelta(days=1)
+        LastTime=nowTime-delta_one
+        month_ago = LastTime - delta
+        month_ago_next=month_ago+delta_one
+        Day_start=month_ago_next.strftime('%Y%m%d')  
+        Day_end=LastTime.strftime('%Y%m%d')  
+        Day_now=nowTime.strftime('%Y%m%d')
+
+        #Default_folder_path='./temp2/'
+        Default_folder_path='D:/temp2/'
+
+        dayA='20140601'#nomal/small
+        dayB='20220801'
+
+
+        #dayA='20150801'#nomal/small
+        #dayB='20220425'
+        dayC=Day_start
+        dayD=Day_now
+        #dayD='20220826'
+
+        zzzz=FE.CSZLFeatureEngineering(dayA,dayB,Default_folder_path)
+        trainpath=zzzz.FE09d()
+
+        zzzz=FE.CSZLFeatureEngineering(dayC,dayD,Default_folder_path)
+        testpath=zzzz.FE09d()
+
+        cur_model=CSZLModel.CSZLModel()
+
+        cur_model_path=cur_model.LGBmodeltrain(trainpath)
+
+        cur_model.LGBmodelpredict(testpath,cur_model_path)
+
+
+        resultpath=cur_model.MixOutputresult_groupbalence(testpath,cur_model_path)
+
+        today_df = pd.read_csv(resultpath,index_col=0,header=0)
+
+        lastday=today_df['trade_date'].max()
+        today_df['ts_code']=today_df['ts_code'].apply(lambda x : x[:-3])
+        copy_df=today_df[today_df['trade_date']==lastday]
+        copy_df.to_csv("Today_NEXT_predict.csv")
+
+
+        #curdisplay=CSZLDisplay.CSZLDisplay()
+        #curdisplay.Topk_nextopen(resultpath)
+
+        pass
+
     def BackTesting2(self):
 
         #Default_folder_path='./temp/'
@@ -264,11 +369,13 @@ class CSZLWorkflow(object):
         #cur_model_path="D:/temp2/FE0320190101to20210101_0/LGBmodeltrainLGBmodel_003"
         #cur_model_path="D:/temp2/FE0320150801to20220425_0/LGBmodeltrainLGBmodel_003"
         cur_model_path="./temp2/FE0520150801to20220425_0/LGBmodeltrainLGBmodel_003"
+        #cur_model_path="./temp2/FE09c20140601to20220801_0/LGBmodeltrainLGBmodel_003"
+
         #是否需要重新生成
         if False:
             #zzzz=FE.CSZLFeatureEngineering("20190101","20210101",Default_folder_path)
             #trainpath=zzzz.FE03()
-            zzzz=FE.CSZLFeatureEngineering("20150801","20220425",Default_folder_path)
+            zzzz=FE.CSZLFeatureEngineering("20140601","20220801",Default_folder_path)
             trainpath=zzzz.FE05()
             cur_model=CSZLModel.CSZLModel()
             cur_model_path=cur_model.LGBmodeltrain(trainpath)
@@ -295,6 +402,59 @@ class CSZLWorkflow(object):
         #aaaa=aaaa.to_csv("tttt.csv")
 
         zzzz.FE05_real(int(Day_now))
+        featurepath="Today_Joinfeature.csv"
+
+        cur_model=CSZLModel.CSZLModel()
+        #resultpath2=cur_model.LGBmodelpredict(trainpath,cur_model_path)
+        resultpath=cur_model.LGBmodelpredict(featurepath,cur_model_path)
+        
+        resultpath=cur_model.MixOutputresult_groupbalence(featurepath,cur_model_path,resultpath)    
+        
+
+
+        pass
+
+    def RealTimePredict_FE09c(self):
+
+        Default_folder_path='./temp2/'
+        #Default_folder_path='D:/temp2/'
+
+        #cur_model_path="D:/temp2/FE0320190101to20210101_0/LGBmodeltrainLGBmodel_003"
+        #cur_model_path="D:/temp2/FE0320150801to20220425_0/LGBmodeltrainLGBmodel_003"
+        #cur_model_path="./temp2/FE0520150801to20220425_0/LGBmodeltrainLGBmodel_003"
+        cur_model_path="./temp2/FE09c20140601to20220801_0/LGBmodeltrainLGBmodel_003"
+
+        #是否需要重新生成
+        if False:
+            #zzzz=FE.CSZLFeatureEngineering("20190101","20210101",Default_folder_path)
+            #trainpath=zzzz.FE03()
+            zzzz=FE.CSZLFeatureEngineering("20140601","20220801",Default_folder_path)
+            trainpath=zzzz.FE09c()
+            cur_model=CSZLModel.CSZLModel()
+            cur_model_path=cur_model.LGBmodeltrain(trainpath)
+        
+
+        #生成需要的数据集
+        nowTime=datetime.datetime.now()
+        delta = datetime.timedelta(days=63)
+        delta_one = datetime.timedelta(days=1)
+        LastTime=nowTime-delta_one
+        month_ago = LastTime - delta
+        month_ago_next=month_ago+delta_one
+        Day_start=month_ago_next.strftime('%Y%m%d')  
+        Day_end=LastTime.strftime('%Y%m%d')
+
+        Day_now=nowTime.strftime('%Y%m%d')  
+
+        CSZLData.CSZLDataWithoutDate.get_realtime_quotes(Default_folder_path,Day_start,Day_end)
+        zzzz=FE.CSZLFeatureEngineering(Day_start,Day_end,Default_folder_path)
+        #zzzz=FE.CSZLFeatureEngineering("20220301","20220420",Default_folder_path)
+        #trainpath=zzzz.FE03()
+        #bbbb=pd.read_pickle(trainpath)
+        #aaaa=bbbb.head(10)
+        #aaaa=aaaa.to_csv("tttt.csv")
+
+        zzzz.FE09c_real(int(Day_now))
         featurepath="Today_Joinfeature.csv"
 
         cur_model=CSZLModel.CSZLModel()
@@ -361,7 +521,7 @@ class CSZLWorkflow(object):
 
         dayC='20200101'
         dayD='20220505'
-        dayD='20220527'
+        dayD='20220722'
         #dayD='20220506'
         #dayD='20220513'
 
@@ -765,6 +925,99 @@ class CSZLWorkflow(object):
 
         pass
 
+    def Zhaoshang2CSZL(self):
+        #获取文件夹里面最后更新的文档
+
+        #sourcepath="./Source"
+        #file_name = CSZLUtils.CSZLUtils.getFlist(sourcepath)
+        #final_name=file_name[-1]
+
+        #修改显示行列数
+        pd.set_option('display.width', 5000)
+        pd.set_option('display.max_rows', 500)
+        pd.set_option('display.max_columns', 500)
+
+        #path = sourcepath+"/"+final_name
+
+        path = "./Source/bbb.csv"
+        read_df = pd.read_csv(path)
+        #read_excel = pd.read_csv(path,index_col=0,header=0)
+        #read_excel = xlrd.open_workbook(path)
+        #read_excel = pd.read_excel(path,engine='openpyxl')   # 直接使用 read_excel() 方法读取
+
+        print(read_df)
+
+        usecol=['证券代码','可卖数量','成本金额']
+
+        df_today=read_df[usecol]
+        print(df_today)
+
+        #证券代码	证券余额	证券可用	冻结数量	最新价	成本价	成本价(港币)	市值
+        df_today.columns = ['ts_code','hold','avalue']
+
+        #df_today['t'] = df_today['ts_code'].str.isdigit()
+
+        #df_today = df_today[df_today['t']!=False]
+        #df_today['ts_code'] = df_today['ts_code'].astype(int)
+
+        df_today=df_today[(df_today['ts_code']<100000)|((df_today['ts_code']>300000)&(df_today['ts_code']<400000))|((df_today['ts_code']>600000)&(df_today['ts_code']<700000))]
+        df_today=df_today[df_today['avalue']>2000]
+
+        print(df_today)
+
+        df_today.to_csv("last_result_real.csv")
+
+
+        pass
+
+    def Zhaoshang2CSZL_CB(self):
+        #获取文件夹里面最后更新的文档
+
+        #sourcepath="./Source"
+        #file_name = CSZLUtils.CSZLUtils.getFlist(sourcepath)
+        #final_name=file_name[-1]
+
+        #修改显示行列数
+        pd.set_option('display.width', 5000)
+        pd.set_option('display.max_rows', 500)
+        pd.set_option('display.max_columns', 500)
+
+        #path = sourcepath+"/"+final_name
+
+        path = "./Source/aaa.csv"
+        read_df = pd.read_csv(path)
+        #read_excel = pd.read_csv(path,index_col=0,header=0)
+        #read_excel = xlrd.open_workbook(path)
+        #read_excel = pd.read_excel(path,engine='openpyxl')   # 直接使用 read_excel() 方法读取
+
+        #print(read_df)
+
+        usecol=['证券代码','可卖数量','成本金额']
+
+        df_today=read_df[usecol]
+        #print(df_today)
+
+        #证券代码	证券余额	证券可用	冻结数量	最新价	成本价	成本价(港币)	市值
+        df_today.columns = ['ts_code','hold','avalue']
+
+        #df_today['t'] = df_today['ts_code'].str.isdigit()
+
+        #df_today = df_today[df_today['t']!=False]
+        #df_today['ts_code'] = df_today['ts_code'].astype(int)
+
+        df_today=df_today[(df_today['ts_code']<200000)&(df_today['ts_code']>100000)]
+        df_today=df_today[df_today['avalue']>2000]
+        df_today=df_today[(df_today['ts_code']<131000)|(df_today['ts_code']>132000)]
+        df_today['hold']=100
+
+
+        #print(df_today)
+
+        df_today.to_csv("last_result_real_CB_ZS.csv")
+
+
+        pass
+
     def Haitong2CSZL_CB(self):
         #获取文件夹里面最后更新的文档
 
@@ -835,8 +1088,8 @@ class CSZLWorkflow(object):
             if(self.TimeCheck()):       
 
 
-                self.RealTimePredict()
-                self.Todays_action('last_result_real.csv',"Today_result.csv",3,7000,True)
+                self.RealTimePredict_FE09c()
+                self.Todays_action('last_result_real.csv',"Today_result.csv",3,10000,True)
 
                 print("Today_over")
                 time.sleep(10000) 

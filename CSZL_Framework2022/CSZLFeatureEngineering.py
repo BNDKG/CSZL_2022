@@ -9,6 +9,8 @@ import os
 import sys
 import re
 
+import talib as ta
+
 class CSZLFeatureEngineering(object):
     """负责进行特征工程"""
 
@@ -104,6 +106,368 @@ class CSZLFeatureEngineering(object):
 
         return savepath8
 
+    def FE07(self):
+
+
+        savepath =self.create_trainingdatasets(self.create_target)
+        savepath2 =self.create_trainingdatasets(self.create_Limitfeature)
+        savepath3 =self.create_trainingdatasets(self.create_dayfeature6)
+        savepath4 =self.create_trainingdatasets(self.create_Longfeature)
+        savepath5 =self.create_trainingdatasets(self.create_Moneyflowfeature2)
+
+        #函数名，区别数字(例如shift 1 就填入1)，区别函数(例如 Moneyflowpath)
+        savepath6 =self.create_trainingdatasets(self.create_Shiftfeatures,1,savepath4)
+        savepath7 =self.create_trainingdatasets(self.create_Shiftfeatures,1,savepath5)
+
+        funname=sys._getframe().f_code.co_name
+        funpath=self.Default_folder_path+funname+self.start_date+"to"+self.end_date+".pkl"
+
+        #savepath8 =self.create_trainingdatasets(self.create_joinfeatures,0,funpath,[savepath,savepath2,savepath3,savepath6,savepath7])
+        savepath8 =self.create_trainingdatasets(self.create_joinfeatures_1000,0,funpath,[savepath,savepath2,savepath3,savepath6,savepath7])
+
+
+        #self.create_Shiftfeatures(mpath,"Moneyflow",1)
+        #self.create_Shiftfeatures(lpath,"Longfeature",1)
+
+        return savepath8
+
+    def FE08(self):
+
+
+        savepath =self.create_trainingdatasets(self.create_target)
+
+        savepath2 =self.create_trainingdatasets(self.create_Limitfeature)
+        savepath3 =self.create_trainingdatasets(self.create_dayfeature8)
+        #savepath3 =self.create_trainingdatasets(self.create_dayfeature6)
+        savepath4 =self.create_trainingdatasets(self.create_Longfeature)
+        savepath5 =self.create_trainingdatasets(self.create_Moneyflowfeature2)
+
+        #函数名，区别数字(例如shift 1 就填入1)，区别函数(例如 Moneyflowpath)
+        savepath6 =self.create_trainingdatasets(self.create_Shiftfeatures,1,savepath4)
+        savepath7 =self.create_trainingdatasets(self.create_Shiftfeatures,1,savepath5)
+
+        funname=sys._getframe().f_code.co_name
+        funpath=self.Default_folder_path+funname+self.start_date+"to"+self.end_date+".pkl"
+
+        #savepath8 =self.create_trainingdatasets(self.create_joinfeatures,0,funpath,[savepath,savepath2,savepath3,savepath6,savepath7])
+        savepath8 =self.create_trainingdatasets(self.create_joinfeatures_1000,0,funpath,[savepath,savepath2,savepath3,savepath6,savepath7])
+
+
+        #self.create_Shiftfeatures(mpath,"Moneyflow",1)
+        #self.create_Shiftfeatures(lpath,"Longfeature",1)
+
+        return savepath8
+
+    def FE09(self):
+
+
+        savepath =self.create_trainingdatasets(self.create_target)
+        savepath2 =self.create_trainingdatasets(self.create_Limitfeature)
+        savepath3 =self.create_trainingdatasets(self.create_dayfeature5)
+        savepath4 =self.create_trainingdatasets(self.create_Longfeature)
+        savepath5 =self.create_trainingdatasets(self.create_Moneyflowfeature2)
+
+        funname=sys._getframe().f_code.co_name
+        funnameG=funname+"GroupFE"
+        funpathG=self.Default_folder_path+funnameG+self.start_date+"to"+self.end_date+".pkl"
+
+        savepath9 =self.create_trainingdatasets(self.create_Groupfeatures,0,funpathG,[savepath3,savepath4])
+
+        #函数名，区别数字(例如shift 1 就填入1)，区别函数(例如 Moneyflowpath)
+        savepath6 =self.create_trainingdatasets(self.create_Shiftfeatures,1,savepath4)
+        savepath7 =self.create_trainingdatasets(self.create_Shiftfeatures,1,savepath5)
+
+        funname=sys._getframe().f_code.co_name
+        funpath=self.Default_folder_path+funname+self.start_date+"to"+self.end_date+".pkl"
+
+        #savepath8 =self.create_trainingdatasets(self.create_joinfeatures,0,funpath,[savepath,savepath2,savepath3,savepath6,savepath7])
+        savepath8 =self.create_trainingdatasets(self.create_joinfeatures,0,funpath,[savepath,savepath2,savepath3,savepath6,savepath7,savepath9])
+
+
+        #self.create_Shiftfeatures(mpath,"Moneyflow",1)
+        #self.create_Shiftfeatures(lpath,"Longfeature",1)
+
+        return savepath8
+
+    def FE09b(self):
+
+
+        savepath =self.create_trainingdatasets(self.create_target)
+        savepath2 =self.create_trainingdatasets(self.create_Limitfeature)
+        savepath3 =self.create_trainingdatasets(self.create_dayfeature5)
+        savepath4 =self.create_trainingdatasets(self.create_Longfeature)
+        savepath5 =self.create_trainingdatasets(self.create_Moneyflowfeature2)
+
+        funname=sys._getframe().f_code.co_name
+        funnameG=funname+"GroupFE"
+        funpathG=self.Default_folder_path+funnameG+self.start_date+"to"+self.end_date+".pkl"
+
+        savepath9 =self.create_trainingdatasets(self.create_Groupfeatures3,0,funpathG,[savepath3,savepath4])
+
+        #函数名，区别数字(例如shift 1 就填入1)，区别函数(例如 Moneyflowpath)
+        savepath6 =self.create_trainingdatasets(self.create_Shiftfeatures,1,savepath4)
+        savepath7 =self.create_trainingdatasets(self.create_Shiftfeatures,1,savepath5)
+
+        funname=sys._getframe().f_code.co_name
+        funpath=self.Default_folder_path+funname+self.start_date+"to"+self.end_date+".pkl"
+
+        #savepath8 =self.create_trainingdatasets(self.create_joinfeatures,0,funpath,[savepath,savepath2,savepath3,savepath6,savepath7])
+        savepath8 =self.create_trainingdatasets(self.create_joinfeatures,0,funpath,[savepath,savepath2,savepath3,savepath6,savepath7,savepath9])
+
+
+        #self.create_Shiftfeatures(mpath,"Moneyflow",1)
+        #self.create_Shiftfeatures(lpath,"Longfeature",1)
+
+        return savepath8
+
+    def FE09c(self):
+
+
+        savepath =self.create_trainingdatasets(self.create_target)
+        savepath2 =self.create_trainingdatasets(self.create_Limitfeature)
+        savepath3 =self.create_trainingdatasets(self.create_dayfeature5)
+        savepath4 =self.create_trainingdatasets(self.create_Longfeature)
+        savepath5 =self.create_trainingdatasets(self.create_Moneyflowfeature2)
+
+        funname=sys._getframe().f_code.co_name
+        funnameG=funname+"GroupFE"
+        funpathG=self.Default_folder_path+funnameG+self.start_date+"to"+self.end_date+".pkl"
+
+        savepath9 =self.create_trainingdatasets(self.create_Groupfeatures5,0,funpathG,[savepath3,savepath4])
+
+        #函数名，区别数字(例如shift 1 就填入1)，区别函数(例如 Moneyflowpath)
+        savepath6 =self.create_trainingdatasets(self.create_Shiftfeatures,1,savepath4)
+        savepath7 =self.create_trainingdatasets(self.create_Shiftfeatures,1,savepath5)
+
+        funname=sys._getframe().f_code.co_name
+        funpath=self.Default_folder_path+funname+self.start_date+"to"+self.end_date+".pkl"
+
+        #savepath8 =self.create_trainingdatasets(self.create_joinfeatures,0,funpath,[savepath,savepath2,savepath3,savepath6,savepath7])
+        savepath8 =self.create_trainingdatasets(self.create_joinfeatures,0,funpath,[savepath,savepath2,savepath3,savepath6,savepath7,savepath9])
+
+
+        #self.create_Shiftfeatures(mpath,"Moneyflow",1)
+        #self.create_Shiftfeatures(lpath,"Longfeature",1)
+
+        return savepath8
+
+    def FE09d(self):
+
+
+        savepath =self.create_trainingdatasets(self.create_target)
+        savepath2 =self.create_trainingdatasets(self.create_Limitfeature)
+        savepath3 =self.create_trainingdatasets(self.create_dayfeature5)
+        savepath4 =self.create_trainingdatasets(self.create_Longfeature)
+        savepath5 =self.create_trainingdatasets(self.create_Moneyflowfeature2)
+
+        funname=sys._getframe().f_code.co_name
+        funnameG=funname+"GroupFE"
+        funpathG=self.Default_folder_path+funnameG+self.start_date+"to"+self.end_date+".pkl"
+
+        savepath9 =self.create_trainingdatasets(self.create_Groupfeatures6,0,funpathG,[savepath3,savepath4])
+
+        #函数名，区别数字(例如shift 1 就填入1)，区别函数(例如 Moneyflowpath)
+        savepath6 =self.create_trainingdatasets(self.create_Shiftfeatures,1,savepath4)
+        savepath7 =self.create_trainingdatasets(self.create_Shiftfeatures,1,savepath5)
+
+        funname=sys._getframe().f_code.co_name
+        funpath=self.Default_folder_path+funname+self.start_date+"to"+self.end_date+".pkl"
+
+        #savepath8 =self.create_trainingdatasets(self.create_joinfeatures,0,funpath,[savepath,savepath2,savepath3,savepath6,savepath7])
+        savepath8 =self.create_trainingdatasets(self.create_joinfeatures,0,funpath,[savepath,savepath2,savepath3,savepath6,savepath7,savepath9])
+
+
+        #self.create_Shiftfeatures(mpath,"Moneyflow",1)
+        #self.create_Shiftfeatures(lpath,"Longfeature",1)
+
+        return savepath8
+
+    def FE10(self):
+
+
+        savepath =self.create_trainingdatasets(self.create_target)
+        savepath2 =self.create_trainingdatasets(self.create_Limitfeature)
+        savepath3 =self.create_trainingdatasets(self.create_dayfeature_little)
+        savepath4 =self.create_trainingdatasets(self.create_Longfeature)
+        savepath5 =self.create_trainingdatasets(self.create_Moneyflowfeature2)
+
+        funname=sys._getframe().f_code.co_name
+        funnameG=funname+"GroupFE"
+        funpathG=self.Default_folder_path+funnameG+self.start_date+"to"+self.end_date+".pkl"
+
+        savepath9 =self.create_trainingdatasets(self.create_Groupfeatures,0,funpathG,[savepath3,savepath4])
+
+        #函数名，区别数字(例如shift 1 就填入1)，区别函数(例如 Moneyflowpath)
+        savepath6 =self.create_trainingdatasets(self.create_Shiftfeatures,1,savepath4)
+        savepath7 =self.create_trainingdatasets(self.create_Shiftfeatures,1,savepath5)
+
+        funname=sys._getframe().f_code.co_name
+        funpath=self.Default_folder_path+funname+self.start_date+"to"+self.end_date+".pkl"
+
+        #savepath8 =self.create_trainingdatasets(self.create_joinfeatures,0,funpath,[savepath,savepath2,savepath3,savepath6,savepath7])
+        savepath8 =self.create_trainingdatasets(self.create_joinfeatures,0,funpath,[savepath,savepath2,savepath3,savepath6,savepath9])
+
+
+        #self.create_Shiftfeatures(mpath,"Moneyflow",1)
+        #self.create_Shiftfeatures(lpath,"Longfeature",1)
+
+        return savepath8
+
+    def FE10b(self):
+
+
+        savepath =self.create_trainingdatasets(self.create_target)
+        savepath2 =self.create_trainingdatasets(self.create_Limitfeature)
+        savepath3 =self.create_trainingdatasets(self.create_dayfeature_little)
+        savepath4 =self.create_trainingdatasets(self.create_Longfeature)
+        savepath5 =self.create_trainingdatasets(self.create_Moneyflowfeature2)
+
+        funname=sys._getframe().f_code.co_name
+        funnameG=funname+"GroupFE"
+        funpathG=self.Default_folder_path+funnameG+self.start_date+"to"+self.end_date+".pkl"
+
+        savepath9 =self.create_trainingdatasets(self.create_Groupfeatures2,0,funpathG,[savepath3,savepath4])
+
+        #函数名，区别数字(例如shift 1 就填入1)，区别函数(例如 Moneyflowpath)
+        savepath6 =self.create_trainingdatasets(self.create_Shiftfeatures,1,savepath4)
+        savepath7 =self.create_trainingdatasets(self.create_Shiftfeatures,1,savepath5)
+
+        funname=sys._getframe().f_code.co_name
+        funpath=self.Default_folder_path+funname+self.start_date+"to"+self.end_date+".pkl"
+
+        #savepath8 =self.create_trainingdatasets(self.create_joinfeatures,0,funpath,[savepath,savepath2,savepath3,savepath6,savepath7])
+        savepath8 =self.create_trainingdatasets(self.create_joinfeatures,0,funpath,[savepath,savepath2,savepath3,savepath6,savepath9])
+
+
+        #self.create_Shiftfeatures(mpath,"Moneyflow",1)
+        #self.create_Shiftfeatures(lpath,"Longfeature",1)
+
+        return savepath8
+
+    def FE10c(self):
+
+
+        savepath =self.create_trainingdatasets(self.create_target)
+        savepath2 =self.create_trainingdatasets(self.create_Limitfeature)
+        savepath3 =self.create_trainingdatasets(self.create_dayfeature_little)
+        savepath4 =self.create_trainingdatasets(self.create_Longfeature)
+        savepath5 =self.create_trainingdatasets(self.create_Moneyflowfeature2)
+
+        funname=sys._getframe().f_code.co_name
+        funnameG=funname+"GroupFE"
+        funpathG=self.Default_folder_path+funnameG+self.start_date+"to"+self.end_date+".pkl"
+
+        savepath9 =self.create_trainingdatasets(self.create_Groupfeatures3,0,funpathG,[savepath3,savepath4])
+
+        #函数名，区别数字(例如shift 1 就填入1)，区别函数(例如 Moneyflowpath)
+        savepath6 =self.create_trainingdatasets(self.create_Shiftfeatures,1,savepath4)
+        savepath7 =self.create_trainingdatasets(self.create_Shiftfeatures,1,savepath5)
+
+        funname=sys._getframe().f_code.co_name
+        funpath=self.Default_folder_path+funname+self.start_date+"to"+self.end_date+".pkl"
+
+        #savepath8 =self.create_trainingdatasets(self.create_joinfeatures,0,funpath,[savepath,savepath2,savepath3,savepath6,savepath7])
+        savepath8 =self.create_trainingdatasets(self.create_joinfeatures,0,funpath,[savepath,savepath2,savepath3,savepath6,savepath9])
+
+
+        #self.create_Shiftfeatures(mpath,"Moneyflow",1)
+        #self.create_Shiftfeatures(lpath,"Longfeature",1)
+
+        return savepath8
+
+    def FE10d(self):
+
+
+        savepath =self.create_trainingdatasets(self.create_target)
+        savepath2 =self.create_trainingdatasets(self.create_Limitfeature)
+        savepath3 =self.create_trainingdatasets(self.create_dayfeature_little)
+        savepath4 =self.create_trainingdatasets(self.create_Longfeature)
+        savepath5 =self.create_trainingdatasets(self.create_Moneyflowfeature2)
+
+        funname=sys._getframe().f_code.co_name
+        funnameG=funname+"GroupFE"
+        funpathG=self.Default_folder_path+funnameG+self.start_date+"to"+self.end_date+".pkl"
+
+        savepath9 =self.create_trainingdatasets(self.create_Groupfeatures5,0,funpathG,[savepath3,savepath4])
+
+        #函数名，区别数字(例如shift 1 就填入1)，区别函数(例如 Moneyflowpath)
+        savepath6 =self.create_trainingdatasets(self.create_Shiftfeatures,1,savepath4)
+        savepath7 =self.create_trainingdatasets(self.create_Shiftfeatures,1,savepath5)
+
+        funname=sys._getframe().f_code.co_name
+        funpath=self.Default_folder_path+funname+self.start_date+"to"+self.end_date+".pkl"
+
+        #savepath8 =self.create_trainingdatasets(self.create_joinfeatures,0,funpath,[savepath,savepath2,savepath3,savepath6,savepath7])
+        savepath8 =self.create_trainingdatasets(self.create_joinfeatures,0,funpath,[savepath,savepath2,savepath3,savepath6,savepath9])
+
+
+        #self.create_Shiftfeatures(mpath,"Moneyflow",1)
+        #self.create_Shiftfeatures(lpath,"Longfeature",1)
+
+        return savepath8
+
+    def FE10e(self):
+
+
+        savepath =self.create_trainingdatasets(self.create_target)
+        savepath2 =self.create_trainingdatasets(self.create_Limitfeature)
+        savepath3 =self.create_trainingdatasets(self.create_dayfeature_little)
+        savepath4 =self.create_trainingdatasets(self.create_Longfeature)
+        savepath5 =self.create_trainingdatasets(self.create_Moneyflowfeature2)
+
+        funname=sys._getframe().f_code.co_name
+        funnameG=funname+"GroupFE"
+        funpathG=self.Default_folder_path+funnameG+self.start_date+"to"+self.end_date+".pkl"
+
+        savepath9 =self.create_trainingdatasets(self.create_Groupfeatures5b,0,funpathG,[savepath3,savepath4])
+
+        #函数名，区别数字(例如shift 1 就填入1)，区别函数(例如 Moneyflowpath)
+        savepath6 =self.create_trainingdatasets(self.create_Shiftfeatures,1,savepath4)
+        savepath7 =self.create_trainingdatasets(self.create_Shiftfeatures,1,savepath5)
+
+        funname=sys._getframe().f_code.co_name
+        funpath=self.Default_folder_path+funname+self.start_date+"to"+self.end_date+".pkl"
+
+        #savepath8 =self.create_trainingdatasets(self.create_joinfeatures,0,funpath,[savepath,savepath2,savepath3,savepath6,savepath7])
+        savepath8 =self.create_trainingdatasets(self.create_joinfeatures,0,funpath,[savepath,savepath2,savepath3,savepath6,savepath9])
+
+
+        #self.create_Shiftfeatures(mpath,"Moneyflow",1)
+        #self.create_Shiftfeatures(lpath,"Longfeature",1)
+
+        return savepath8
+
+    def FE10f(self):
+
+
+        savepath =self.create_trainingdatasets(self.create_target)
+        savepath2 =self.create_trainingdatasets(self.create_Limitfeature)
+        savepath3 =self.create_trainingdatasets(self.create_dayfeature_little2)
+        savepath4 =self.create_trainingdatasets(self.create_Longfeature)
+        savepath5 =self.create_trainingdatasets(self.create_Moneyflowfeature2)
+
+        funname=sys._getframe().f_code.co_name
+        funnameG=funname+"GroupFE"
+        funpathG=self.Default_folder_path+funnameG+self.start_date+"to"+self.end_date+".pkl"
+
+        savepath9 =self.create_trainingdatasets(self.create_Groupfeatures6,0,funpathG,[savepath3,savepath4])
+
+        #函数名，区别数字(例如shift 1 就填入1)，区别函数(例如 Moneyflowpath)
+        savepath6 =self.create_trainingdatasets(self.create_Shiftfeatures,1,savepath4)
+        savepath7 =self.create_trainingdatasets(self.create_Shiftfeatures,1,savepath5)
+
+        funname=sys._getframe().f_code.co_name
+        funpath=self.Default_folder_path+funname+self.start_date+"to"+self.end_date+".pkl"
+
+        #savepath8 =self.create_trainingdatasets(self.create_joinfeatures,0,funpath,[savepath,savepath2,savepath3,savepath6,savepath7])
+        savepath8 =self.create_trainingdatasets(self.create_joinfeatures,0,funpath,[savepath,savepath2,savepath3,savepath6,savepath9])
+
+
+        #self.create_Shiftfeatures(mpath,"Moneyflow",1)
+        #self.create_Shiftfeatures(lpath,"Longfeature",1)
+
+        return savepath8
+
     def FE04(self):
 
 
@@ -173,6 +537,34 @@ class CSZLFeatureEngineering(object):
 
 
         df_joinfeature=self.create_joinfeatures_real([df_dayfeature,df_limit,df_shift_long,df_shift_money])
+
+        finalday=df_joinfeature['trade_date'].max()
+        df_joinfeature=df_joinfeature[df_joinfeature['trade_date']==finalday]
+        print(df_joinfeature)
+
+        df_joinfeature.to_csv("Today_Joinfeature.csv")
+
+
+        return df_joinfeature
+
+    def FE09c_real(self,date):
+
+        #20220415
+        df_dayfeature =self.create_dayfeature5(date)
+        #print(df_featured)
+
+        df_limit =self.create_Limitfeature(date)
+
+        df_long =self.create_Longfeature(date)
+        df_money =self.create_Moneyflowfeature2(date)
+
+        df_group=self.create_Groupfeatures5([-1,df_dayfeature,df_long])
+
+        #函数名，区别数字(例如shift 1 就填入1)，区别函数(例如 Moneyflowpath)
+        df_shift_long=self.create_Shiftfeatures([-1,df_long])
+        df_shift_money=self.create_Shiftfeatures([-1,df_money])
+
+        df_joinfeature=self.create_joinfeatures_real([df_dayfeature,df_limit,df_shift_long,df_shift_money,df_group])
 
         finalday=df_joinfeature['trade_date'].max()
         df_joinfeature=df_joinfeature[df_joinfeature['trade_date']==finalday]
@@ -328,6 +720,33 @@ class CSZLFeatureEngineering(object):
         df=df.replace(np.nan, 0)
 
         df=df[df['amount_rank']>0.8]
+
+        return df
+
+    def create_joinfeatures_1000(self,arges):
+
+        features=arges[2]
+
+        df=[]
+        count=0
+        for featurename in features:
+            if count==0:
+                #df=pd.read_csv(featurename,index_col=0,header=0)
+                df=CSZLUtils.CSZLUtils.Loaddata(featurename)
+                #df=pd.read_pickle(featurename)
+                count+=1
+                continue
+            #df2=pd.read_csv(featurename,index_col=0,header=0)
+            df2=CSZLUtils.CSZLUtils.Loaddata(featurename)
+            #df2=pd.read_pickle(featurename)
+            df=pd.merge(df, df2, how='left', on=['ts_code','trade_date'])
+            del df2
+            gc.collect()
+            count+=1
+
+        df=df.replace(np.nan, 0)
+
+        df=df[df['amount_rank']>0.5]
 
         return df
 
@@ -709,6 +1128,328 @@ class CSZLFeatureEngineering(object):
         
         return df
 
+    def create_dayfeature8(self,arges):
+
+        df=self.LoaddfDailydata().copy(deep=True)
+        df2=self.LoaddfAdj_factor().copy(deep=True)
+
+        if arges:
+
+            loadpath="real_buffer.csv"
+            df_today=pd.read_csv(loadpath,index_col=0,header=0)
+            df_today['trade_date']=arges
+
+            df['ts_code']=df['ts_code'].apply(lambda x : x[:-3])
+            df_today['ts_code']=df_today['ts_code'].apply(lambda x:str(x).zfill(6))
+
+            df = df.append(df_today, ignore_index=True)
+
+            lastday=df2['trade_date'].max()
+            df2['ts_code']=df2['ts_code'].apply(lambda x : x[:-3])
+            copy_df=df2[df2['trade_date']==lastday]
+            copy_df.loc[:,'trade_date']=arges
+            
+            df2 = df2.append(copy_df, ignore_index=True)
+
+
+        df=pd.merge(df, df2, how='inner', on=['ts_code','trade_date'])
+
+        df['realhigh_price']=df['high']*df['adj_factor']
+        df['reallow_price']=df['low']*df['adj_factor']
+        df['real_price']=df['close']*df['adj_factor']
+
+        df=df[["ts_code","trade_date","realhigh_price","reallow_price","real_price","open","high","low","pct_chg","pre_close","close","amount"]]
+
+        seedf=df[df["ts_code"]=="600000.SH"]
+
+        #修改显示行列数
+        pd.set_option('display.width', 5000)
+        pd.set_option('display.max_rows', 500)
+        pd.set_option('display.max_columns', 500)
+
+        indexx=0
+        baseg=[]
+        for name,group in df.groupby('ts_code'):
+            
+            #group["dif"], group["dea"], group["bar"] = ta.MACD(group['real_price'].values, fastperiod=12, slowperiod=26, signalperiod=9)
+            #group['macd']=group["dif"]-group["dea"]
+            dif, dea, bar = ta.MACD(group['real_price'].values, fastperiod=12, slowperiod=26, signalperiod=9)
+            group['macd']=dif-dea
+
+            group['slowk'], group['slowd'] = ta.STOCH(
+			            group['realhigh_price'].values, 
+			            group['reallow_price'].values, 
+			            group['real_price'].values,
+                                    fastk_period=9,
+                                    slowk_period=3,
+                                    slowk_matype=0,
+                                    slowd_period=3,
+                                    slowd_matype=0)
+            # 求出J值，J = (3*K)-(2*D)
+            group['slowj'] = list(map(lambda x,y: 3*x-2*y, group['slowk'], group['slowd']))
+
+
+            if indexx==0:
+                baseg=group
+            else:
+                baseg=baseg.append(group)
+
+            
+            indexx+=1
+
+        #df["zzz"]=df.groupby('trade_date')['real_price'].apply(lambda x: ta.SMA(x,timeperiod=10))
+        #print(baseg)
+        #baseg.to_csv("xxxx.csv")
+
+
+
+        #df["aa"]=df.groupby('trade_date').apply(lambda x: ta.MACD(x['real_price'].values, fastperiod=12, slowperiod=26, signalperiod=9))
+
+        #print(df)
+
+
+        ##seedf["SMA10"]=ta.SMA(seedf['real_price'],timeperiod=10)
+        #seedf["dif"], seedf["dea"], seedf["bar"] = ta.MACD(seedf['real_price'].values, fastperiod=12, slowperiod=26, signalperiod=9)
+
+        #seedf['macd']=seedf["dif"]-seedf["dea"]
+
+        #seedf['slowk'], seedf['slowd'] = ta.STOCH(
+			     #   seedf['realhigh_price'].values, 
+			     #   seedf['reallow_price'].values, 
+			     #   seedf['real_price'].values,
+        #                        fastk_period=9,
+        #                        slowk_period=3,
+        #                        slowk_matype=0,
+        #                        slowd_period=3,
+        #                        slowd_matype=0)
+        ## 求出J值，J = (3*K)-(2*D)
+        #seedf['slowj'] = list(map(lambda x,y: 3*x-2*y, seedf['slowk'], seedf['slowd']))
+
+
+        df=self.InputChgSum(df,3,'amount')
+        df=self.InputChgSum(df,6,'amount')
+        df=self.InputChgSum(df,12,'amount')
+        df=self.InputChgSum(df,24,'amount')
+
+        df['am_pct_1_3']=df['amount_3']/df['amount']
+        df['am_pct_3_6']=df['amount_6']/df['amount_3']
+        df['am_pct_6_12']=df['amount_12']/df['amount_6']
+        df['am_pct_12_24']=df['amount_24']/df['amount_12']
+
+        df['am_rank_1_3']=df.groupby('trade_date')['am_pct_1_3'].rank(pct=True)
+        df['am_rank_3_6']=df.groupby('trade_date')['am_pct_3_6'].rank(pct=True)
+        df['am_rank_6_12']=df.groupby('trade_date')['am_pct_6_12'].rank(pct=True)
+        df['am_rank_12_24']=df.groupby('trade_date')['am_pct_12_24'].rank(pct=True)
+
+        #print(df)
+
+        df['high_stop']=0
+        df.loc[df['pct_chg']>9.4,'high_stop']=1
+
+        df['chg_rank']=df.groupby('trade_date')['pct_chg'].rank(pct=True)
+        df['amount_rank']=df.groupby('trade_date')['amount'].rank(pct=True)
+
+        df['pct_chg_abs']=df['pct_chg'].abs()
+        df['pct_chg_abs_rank']=df.groupby('trade_date')['pct_chg_abs'].rank(pct=True)
+
+        #计算三种比例rank
+        dolist=['open','high','low']
+
+        df['pct_chg_r']=df['pct_chg']
+
+        for curc in dolist:
+            buffer=((df[curc]-df['pre_close'])*100)/df['pre_close']
+            df[curc]=buffer
+            df[curc]=df.groupby('trade_date')[curc].rank(pct=True)
+
+        #print(df)
+
+        df=self.OldFeaturesRank(df,['open','high','low','pct_chg_r'],1)
+
+        df=self.InputChgSumRank(df,6,'pct_chg_abs')
+        df=self.InputChgSumRank(df,3,'pct_chg')
+        df=self.InputChgSumRank(df,6,'pct_chg')
+        df=self.InputChgSumRank(df,12,'pct_chg')
+        df=self.InputChgSumRank(df,24,'pct_chg')
+
+        df=self.InputChgSum(df,3,'pct_chg')
+        df=self.InputChgSum(df,6,'pct_chg')
+        df=self.InputChgSum(df,12,'pct_chg')
+        df=self.InputChgSum(df,24,'pct_chg')
+
+        #df['chg_rank_24_diff']=df['chg_rank_24']-df['chg_rank_12']
+        #df['chg_rank_12_diff']=df['chg_rank_12']-df['chg_rank_6']
+        #df['chg_rank_6_diff']=df['chg_rank_6']-df['chg_rank_3']
+
+        #df['pct_chg_24_diff']=df['pct_chg_24']-df['pct_chg_12']
+        #df['pct_chg_12_diff']=df['pct_chg_12']-df['pct_chg_6']
+        #df['pct_chg_6_diff']=df['pct_chg_6']-df['pct_chg_3']
+
+        df=self.HighLowRange(df,5)
+        df=self.HighLowRange(df,12)
+        df=self.HighLowRange(df,25)
+
+
+        df=self.CloseWithHighLow(df,5)
+        df=self.CloseWithHighLow(df,12)
+        df=self.CloseWithHighLow(df,25)
+        df=self.CloseWithHighLow(df,5,'max')
+        df=self.CloseWithHighLow(df,12,'max')
+        df=self.CloseWithHighLow(df,25,'max')
+
+        #df['25_pct_rank_min_diff']=df['25_pct_rank_min']-df['12_pct_rank_min']
+        #df['12_pct_rank_min_diff']=df['12_pct_rank_min']-df['5_pct_rank_min']
+
+        #df['25_pct_rank_max_diff']=df['25_pct_rank_max']-df['12_pct_rank_max']
+        #df['12_pct_rank_max_diff']=df['12_pct_rank_max']-df['5_pct_rank_max']
+
+        #df['25_pct_Rangerank_diff']=df['25_pct_Rangerank']-df['12_pct_Rangerank']
+        #df['12_pct_Rangerank_diff']=df['12_pct_Rangerank']-df['5_pct_Rangerank']
+
+
+        #df.to_csv("dfsdf.csv")
+
+        del df2
+        gc.collect()
+        
+        return df
+
+    def create_dayfeature_little(self,arges):
+
+        df=self.LoaddfDailydata().copy(deep=True)
+        df2=self.LoaddfAdj_factor().copy(deep=True)
+
+        if arges:
+
+            loadpath="real_buffer.csv"
+            df_today=pd.read_csv(loadpath,index_col=0,header=0)
+            df_today['trade_date']=arges
+
+            df['ts_code']=df['ts_code'].apply(lambda x : x[:-3])
+            df_today['ts_code']=df_today['ts_code'].apply(lambda x:str(x).zfill(6))
+
+            df = df.append(df_today, ignore_index=True)
+
+            lastday=df2['trade_date'].max()
+            df2['ts_code']=df2['ts_code'].apply(lambda x : x[:-3])
+            copy_df=df2[df2['trade_date']==lastday]
+            copy_df.loc[:,'trade_date']=arges
+            
+            df2 = df2.append(copy_df, ignore_index=True)
+
+
+        df=pd.merge(df, df2, how='inner', on=['ts_code','trade_date'])
+
+        df['real_price']=df['close']*df['adj_factor']
+
+        df=df[["ts_code","trade_date","real_price","open","high","low","pct_chg","pre_close","close","amount"]]
+
+        df=self.InputChgSum(df,3,'amount')
+
+
+        #print(df)
+
+        df['high_stop']=0
+        df.loc[df['pct_chg']>9.4,'high_stop']=1
+
+        df['chg_rank']=df.groupby('trade_date')['pct_chg'].rank(pct=True)
+        df['pct_chg_abs']=df['pct_chg'].abs()
+        df['pct_chg_abs_rank']=df.groupby('trade_date')['pct_chg_abs'].rank(pct=True)
+
+        #计算三种比例rank
+        dolist=['open','high','low']
+
+        df=self.InputChgSum(df,3,'pct_chg')
+        df=self.InputChgSum(df,6,'pct_chg')
+
+        df['pct_chg_r']=df['pct_chg']
+
+        for curc in dolist:
+            buffer=((df[curc]-df['pre_close'])*100)/df['pre_close']
+            df[curc]=buffer
+            df[curc]=df.groupby('trade_date')[curc].rank(pct=True)
+
+        #print(df)
+
+        df=self.OldFeaturesRank(df,['open','high','low','pct_chg_r'],1)
+
+
+        #df.to_csv("dfsdf.csv")
+
+        del df2
+        gc.collect()
+        
+        return df
+
+    def create_dayfeature_little2(self,arges):
+
+        df=self.LoaddfDailydata().copy(deep=True)
+        df2=self.LoaddfAdj_factor().copy(deep=True)
+
+        if arges:
+
+            loadpath="real_buffer.csv"
+            df_today=pd.read_csv(loadpath,index_col=0,header=0)
+            df_today['trade_date']=arges
+
+            df['ts_code']=df['ts_code'].apply(lambda x : x[:-3])
+            df_today['ts_code']=df_today['ts_code'].apply(lambda x:str(x).zfill(6))
+
+            df = df.append(df_today, ignore_index=True)
+
+            lastday=df2['trade_date'].max()
+            df2['ts_code']=df2['ts_code'].apply(lambda x : x[:-3])
+            copy_df=df2[df2['trade_date']==lastday]
+            copy_df.loc[:,'trade_date']=arges
+            
+            df2 = df2.append(copy_df, ignore_index=True)
+
+
+        df=pd.merge(df, df2, how='inner', on=['ts_code','trade_date'])
+
+        df['real_price']=df['close']*df['adj_factor']
+
+        df=df[["ts_code","trade_date","real_price","open","high","low","pct_chg","pre_close","close","amount"]]
+
+        df=self.InputChgSum(df,3,'amount')
+
+
+        #print(df)
+
+        df['high_stop']=0
+        df.loc[df['pct_chg']>9.4,'high_stop']=1
+
+        df['chg_rank']=df.groupby('trade_date')['pct_chg'].rank(pct=True)
+        df['pct_chg_abs']=df['pct_chg'].abs()
+        df['pct_chg_abs_rank']=df.groupby('trade_date')['pct_chg_abs'].rank(pct=True)
+
+        #计算三种比例rank
+        dolist=['open','high','low']
+
+        df=self.InputChgSum(df,3,'pct_chg')
+        df=self.InputChgSum(df,6,'pct_chg')
+        df=self.InputChgSum(df,12,'pct_chg')
+        df=self.InputChgSum(df,24,'pct_chg')
+
+        df['pct_chg_r']=df['pct_chg']
+
+        for curc in dolist:
+            buffer=((df[curc]-df['pre_close'])*100)/df['pre_close']
+            df[curc]=buffer
+            df[curc]=df.groupby('trade_date')[curc].rank(pct=True)
+
+        #print(df)
+
+        df=self.OldFeaturesRank(df,['open','high','low','pct_chg_r'],1)
+
+
+        #df.to_csv("dfsdf.csv")
+
+        del df2
+        gc.collect()
+        
+        return df
+
     def create_Moneyflowfeature2(self,arges):
 
         df=self.LoaddfMoneyflow().copy(deep=True)
@@ -1072,6 +1813,610 @@ class CSZLFeatureEngineering(object):
         
         return df
 
+    def create_Groupfeatures(self,arges):
+
+        features=arges[2]
+        dayfeaturepath=features[0]
+        longfeaturepath=features[1]
+
+
+        dfday=CSZLUtils.CSZLUtils.Loaddata(dayfeaturepath)
+        dflong=CSZLUtils.CSZLUtils.Loaddata(longfeaturepath)
+
+        #修改显示行列数
+        pd.set_option('display.width', 5000)
+        pd.set_option('display.max_rows', 500)
+        pd.set_option('display.max_columns', 500)
+
+        dfday=dfday[['ts_code','trade_date','amount','pct_chg','close']]
+        dfday['amount_group_rank']=dfday.groupby('trade_date')['amount'].rank(pct=True)
+        dfday['amount_group_rank']=dfday['amount_group_rank']*4.99//1
+
+        dfday['close_group_rank']=dfday.groupby('trade_date')['close'].rank(pct=True)
+        dfday['close_group_rank']=dfday['close_group_rank']*4.99//1
+
+
+        dflong=dflong[['ts_code','trade_date','pb_rank']]
+        dflong['pb_group_rank']=dflong['pb_rank']*4.99//1
+
+        df_all=pd.merge(dfday,dflong,on=['ts_code','trade_date'])
+
+        df_all['selfrank']=df_all.groupby(['trade_date','amount_group_rank','pb_group_rank','close_group_rank'])['pct_chg'].rank(pct=True)
+
+        df1=df_all.groupby(['trade_date','amount_group_rank','pb_group_rank','close_group_rank']).agg({"pct_chg":"mean"})
+
+        df1.rename(columns={'pct_chg':'group_pct_chg'},inplace=True)
+        df1.reset_index(inplace=True)
+
+        df_result=pd.merge(df_all,df1,on=['trade_date','amount_group_rank','pb_group_rank','close_group_rank'],how='left')
+
+
+        df_result['GroupRank']=df_result['group_pct_chg'].rank(method='dense',pct=True)
+
+        #df=pd.read_pickle(dfloadpath)
+        ##df=pd.read_csv(dfloadpath,index_col=0,header=0)
+
+        df_result=df_result[['ts_code','trade_date','selfrank','group_pct_chg','GroupRank']]
+
+        df_result.sort_values(["trade_date","ts_code"] , inplace=True, ascending=True) 
+        df_result.reset_index(inplace=True,drop=True)
+        df_result.to_csv("zzzzzz.csv")
+        
+        print(df_result)
+
+        return df_result
+
+    def create_Groupfeatures2(self,arges):
+
+        features=arges[2]
+        dayfeaturepath=features[0]
+        longfeaturepath=features[1]
+
+
+        dfday=CSZLUtils.CSZLUtils.Loaddata(dayfeaturepath)
+        dflong=CSZLUtils.CSZLUtils.Loaddata(longfeaturepath)
+
+        #修改显示行列数
+        pd.set_option('display.width', 5000)
+        pd.set_option('display.max_rows', 500)
+        pd.set_option('display.max_columns', 500)
+
+        dfday=dfday[['ts_code','trade_date','amount','pct_chg','close']]
+        dfday['amount_group_rank']=dfday.groupby('trade_date')['amount'].rank(pct=True)
+        dfday['amount_group_rank']=dfday['amount_group_rank']*2.99//1
+
+        dfday['close_group_rank']=dfday.groupby('trade_date')['close'].rank(pct=True)
+        dfday['close_group_rank']=dfday['close_group_rank']*2.99//1
+
+
+        dflong=dflong[['ts_code','trade_date','pb_rank']]
+        dflong['pb_group_rank']=dflong['pb_rank']*2.99//1
+
+        df_all=pd.merge(dfday,dflong,on=['ts_code','trade_date'])
+
+        df_all['selfrank']=df_all.groupby(['trade_date','amount_group_rank','pb_group_rank','close_group_rank'])['pct_chg'].rank(pct=True)
+
+        df1=df_all.groupby(['trade_date','amount_group_rank','pb_group_rank','close_group_rank']).agg({"pct_chg":"mean"})
+
+        df1.rename(columns={'pct_chg':'group_pct_chg'},inplace=True)
+        df1.reset_index(inplace=True)
+
+        df_result=pd.merge(df_all,df1,on=['trade_date','amount_group_rank','pb_group_rank','close_group_rank'],how='left')
+
+
+        df_result['GroupRank']=df_result['group_pct_chg'].rank(method='dense',pct=True)
+
+        #df=pd.read_pickle(dfloadpath)
+        ##df=pd.read_csv(dfloadpath,index_col=0,header=0)
+
+        df_result=df_result[['ts_code','trade_date','selfrank','group_pct_chg','GroupRank']]
+
+        df_result.sort_values(["trade_date","ts_code"] , inplace=True, ascending=True) 
+        df_result.reset_index(inplace=True,drop=True)
+        df_result.to_csv("zzzzzz.csv")
+        
+        print(df_result)
+
+        return df_result
+
+    def create_Groupfeatures3(self,arges):
+
+        features=arges[2]
+        dayfeaturepath=features[0]
+        longfeaturepath=features[1]
+
+
+        dfday=CSZLUtils.CSZLUtils.Loaddata(dayfeaturepath)
+        dflong=CSZLUtils.CSZLUtils.Loaddata(longfeaturepath)
+
+        #修改显示行列数
+        pd.set_option('display.width', 5000)
+        pd.set_option('display.max_rows', 500)
+        pd.set_option('display.max_columns', 500)
+
+        print(dfday)
+        dfday=dfday[['ts_code','trade_date','amount','pct_chg','pct_chg_3','pct_chg_6','close']]
+
+
+
+        dfday['amount_group_rank']=dfday.groupby('trade_date')['amount'].rank(pct=True)
+        dfday['amount_group_rank']=dfday['amount_group_rank']*2.99//1
+
+        dfday['close_group_rank']=dfday.groupby('trade_date')['close'].rank(pct=True)
+        dfday['close_group_rank']=dfday['close_group_rank']*2.99//1
+
+
+        dflong=dflong[['ts_code','trade_date','pb_rank']]
+        dflong['pb_group_rank']=dflong['pb_rank']*2.99//1
+
+        df_all=pd.merge(dfday,dflong,on=['ts_code','trade_date'])
+
+        df_all['selfrank']=df_all.groupby(['trade_date','amount_group_rank','pb_group_rank','close_group_rank'])['pct_chg'].rank(pct=True)
+        df_all['selfrank_Rank_3']=df_all.groupby(['trade_date','amount_group_rank','pb_group_rank','close_group_rank'])['pct_chg_3'].rank(pct=True)
+        df_all['selfrank_Rank_6']=df_all.groupby(['trade_date','amount_group_rank','pb_group_rank','close_group_rank'])['pct_chg_6'].rank(pct=True)
+
+        df1=df_all.groupby(['trade_date','amount_group_rank','pb_group_rank','close_group_rank']).agg({"pct_chg":"mean"})
+        df2=df_all.groupby(['trade_date','amount_group_rank','pb_group_rank','close_group_rank']).agg({"pct_chg_3":"mean"})
+        df3=df_all.groupby(['trade_date','amount_group_rank','pb_group_rank','close_group_rank']).agg({"pct_chg_6":"mean"})
+
+        df1.rename(columns={'pct_chg':'group_pct_chg'},inplace=True)
+        df2.rename(columns={'pct_chg_3':'group_pct_chg_Rank_3'},inplace=True)
+        df3.rename(columns={'pct_chg_6':'group_pct_chg_Rank_6'},inplace=True)
+        df1.reset_index(inplace=True)
+        df2.reset_index(inplace=True)
+        df3.reset_index(inplace=True)
+
+        print(df1)
+
+        df_result=pd.merge(df_all,df1,on=['trade_date','amount_group_rank','pb_group_rank','close_group_rank'],how='left')
+        df_result=pd.merge(df_result,df2,on=['trade_date','amount_group_rank','pb_group_rank','close_group_rank'],how='left')
+        df_result=pd.merge(df_result,df3,on=['trade_date','amount_group_rank','pb_group_rank','close_group_rank'],how='left')
+
+        df_result['GroupRank']=df_result['group_pct_chg'].rank(method='dense',pct=True)
+        df_result['GroupRank_3']=df_result['group_pct_chg_Rank_3'].rank(method='dense',pct=True)
+        df_result['GroupRank_6']=df_result['group_pct_chg_Rank_6'].rank(method='dense',pct=True)
+
+        #df=pd.read_pickle(dfloadpath)
+        ##df=pd.read_csv(dfloadpath,index_col=0,header=0)
+
+        df_result=df_result[['ts_code','trade_date','selfrank','selfrank_Rank_3','selfrank_Rank_6','group_pct_chg','group_pct_chg_Rank_3','group_pct_chg_Rank_6','GroupRank','GroupRank_3','GroupRank_6']]
+
+        df_result.sort_values(["trade_date","ts_code"] , inplace=True, ascending=True) 
+        df_result.reset_index(inplace=True,drop=True)
+        df_result.to_csv("zzzzzz.csv")
+        
+        print(df_result)
+
+        return df_result
+
+    def create_Groupfeatures5(self,arges):
+
+        flag=arges[0]
+        dfday=[]
+        dflong=[]
+        if flag<0:
+            dfday=arges[1]
+            dflong=arges[2]
+
+        else:
+            features=arges[2]
+            dayfeaturepath=features[0]
+            longfeaturepath=features[1]
+
+            dfday=CSZLUtils.CSZLUtils.Loaddata(dayfeaturepath)
+            dflong=CSZLUtils.CSZLUtils.Loaddata(longfeaturepath)
+
+        #修改显示行列数
+        pd.set_option('display.width', 5000)
+        pd.set_option('display.max_rows', 500)
+        pd.set_option('display.max_columns', 500)
+
+        print(dfday)
+        dfday=dfday[['ts_code','trade_date','amount','pct_chg','pct_chg_3','pct_chg_6','close']]
+
+        dfday['code_group']=0
+
+        print(dfday)
+
+        dfday.loc[dfday['ts_code'].str.startswith('3')==True,'code_group']=3
+        dfday.loc[dfday['ts_code'].str.startswith('0')==True,'code_group']=0
+        dfday.loc[dfday['ts_code'].str.startswith('6')==True,'code_group']=6
+        dfday.loc[dfday['ts_code'].str.startswith('68')==True,'code_group']=8
+
+        print(dfday)
+
+        dfday['amount_group_rank']=dfday.groupby('trade_date')['amount'].rank(pct=True)
+        dfday['amount_group_rank']=dfday['amount_group_rank']*2.99//1
+
+        dfday['close_group_rank']=dfday.groupby('trade_date')['close'].rank(pct=True)
+        dfday['close_group_rank']=dfday['close_group_rank']*2.99//1
+
+
+        dflong=dflong[['ts_code','trade_date','pb_rank']]
+        dflong['pb_group_rank']=dflong['pb_rank']*2.99//1
+
+        df_all=pd.merge(dfday,dflong,on=['ts_code','trade_date'])
+
+        df_all['selfrank']=df_all.groupby(['trade_date','amount_group_rank','pb_group_rank','close_group_rank','code_group'])['pct_chg'].rank(pct=True)
+        df_all['selfrank_Rank_3']=df_all.groupby(['trade_date','amount_group_rank','pb_group_rank','close_group_rank','code_group'])['pct_chg_3'].rank(pct=True)
+        df_all['selfrank_Rank_6']=df_all.groupby(['trade_date','amount_group_rank','pb_group_rank','close_group_rank','code_group'])['pct_chg_6'].rank(pct=True)
+
+        df1=df_all.groupby(['trade_date','amount_group_rank','pb_group_rank','close_group_rank','code_group']).agg({"pct_chg":"mean"})
+        df2=df_all.groupby(['trade_date','amount_group_rank','pb_group_rank','close_group_rank','code_group']).agg({"pct_chg_3":"mean"})
+        df3=df_all.groupby(['trade_date','amount_group_rank','pb_group_rank','close_group_rank','code_group']).agg({"pct_chg_6":"mean"})
+
+        df1.rename(columns={'pct_chg':'group_pct_chg'},inplace=True)
+        df2.rename(columns={'pct_chg_3':'group_pct_chg_Rank_3'},inplace=True)
+        df3.rename(columns={'pct_chg_6':'group_pct_chg_Rank_6'},inplace=True)
+        df1.reset_index(inplace=True)
+        df2.reset_index(inplace=True)
+        df3.reset_index(inplace=True)
+
+        print(df1)
+
+        df_result=pd.merge(df_all,df1,on=['trade_date','amount_group_rank','pb_group_rank','close_group_rank','code_group'],how='left')
+        df_result=pd.merge(df_result,df2,on=['trade_date','amount_group_rank','pb_group_rank','close_group_rank','code_group'],how='left')
+        df_result=pd.merge(df_result,df3,on=['trade_date','amount_group_rank','pb_group_rank','close_group_rank','code_group'],how='left')
+
+        df_result['GroupRank']=df_result['group_pct_chg'].rank(method='dense',pct=True)
+        df_result['GroupRank_3']=df_result['group_pct_chg_Rank_3'].rank(method='dense',pct=True)
+        df_result['GroupRank_6']=df_result['group_pct_chg_Rank_6'].rank(method='dense',pct=True)
+
+        #df=pd.read_pickle(dfloadpath)
+        ##df=pd.read_csv(dfloadpath,index_col=0,header=0)
+
+        df_result=df_result[['ts_code','trade_date','selfrank','selfrank_Rank_3','selfrank_Rank_6','group_pct_chg','group_pct_chg_Rank_3','group_pct_chg_Rank_6','GroupRank','GroupRank_3','GroupRank_6','code_group']]
+
+        df_result.sort_values(["trade_date","ts_code"] , inplace=True, ascending=True) 
+        df_result.reset_index(inplace=True,drop=True)
+        df_result.to_csv("zzzzzz.csv")
+        
+        print(df_result)
+
+        return df_result
+
+    def create_Groupfeatures5b(self,arges):
+
+        flag=arges[0]
+        dfday=[]
+        dflong=[]
+        if flag<0:
+            dfday=arges[1]
+            dflong=arges[2]
+
+        else:
+            features=arges[2]
+            dayfeaturepath=features[0]
+            longfeaturepath=features[1]
+
+            dfday=CSZLUtils.CSZLUtils.Loaddata(dayfeaturepath)
+            dflong=CSZLUtils.CSZLUtils.Loaddata(longfeaturepath)
+
+        #修改显示行列数
+        pd.set_option('display.width', 5000)
+        pd.set_option('display.max_rows', 500)
+        pd.set_option('display.max_columns', 500)
+
+        print(dfday)
+        dfday=dfday[['ts_code','trade_date','amount','pct_chg','pct_chg_3','pct_chg_6','close']]
+
+        dfday['code_group']=0
+
+        print(dfday)
+
+        dfday.loc[dfday['ts_code'].str.startswith('3')==True,'code_group']=3
+        dfday.loc[dfday['ts_code'].str.startswith('0')==True,'code_group']=0
+        dfday.loc[dfday['ts_code'].str.startswith('6')==True,'code_group']=6
+        dfday.loc[dfday['ts_code'].str.startswith('68')==True,'code_group']=8
+
+        print(dfday)
+
+        dfday['amount_group_rank']=dfday.groupby('trade_date')['amount'].rank(pct=True)
+        dfday['amount_group_rank']=dfday['amount_group_rank']*2.99//1
+
+        dfday['close_group_rank']=dfday.groupby('trade_date')['close'].rank(pct=True)
+        dfday['close_group_rank']=dfday['close_group_rank']*2.99//1
+
+
+        dflong=dflong[['ts_code','trade_date','pb_rank']]
+        dflong['pb_group_rank']=dflong['pb_rank']*2.99//1
+
+        df_all=pd.merge(dfday,dflong,on=['ts_code','trade_date'])
+
+        df_all['selfrank']=df_all.groupby(['trade_date','amount_group_rank','pb_group_rank','close_group_rank','code_group'])['pct_chg'].rank(pct=True)
+        df_all['selfrank_Rank_3']=df_all.groupby(['trade_date','amount_group_rank','pb_group_rank','close_group_rank','code_group'])['pct_chg_3'].rank(pct=True)
+        df_all['selfrank_Rank_6']=df_all.groupby(['trade_date','amount_group_rank','pb_group_rank','close_group_rank','code_group'])['pct_chg_6'].rank(pct=True)
+
+        df1=df_all.groupby(['trade_date','amount_group_rank','pb_group_rank','close_group_rank','code_group']).agg({"pct_chg":"mean"})
+        df2=df_all.groupby(['trade_date','amount_group_rank','pb_group_rank','close_group_rank','code_group']).agg({"pct_chg_3":"mean"})
+        df3=df_all.groupby(['trade_date','amount_group_rank','pb_group_rank','close_group_rank','code_group']).agg({"pct_chg_6":"mean"})
+
+        df1.rename(columns={'pct_chg':'group_pct_chg'},inplace=True)
+        df2.rename(columns={'pct_chg_3':'group_pct_chg_Rank_3'},inplace=True)
+        df3.rename(columns={'pct_chg_6':'group_pct_chg_Rank_6'},inplace=True)
+        df1.reset_index(inplace=True)
+        df2.reset_index(inplace=True)
+        df3.reset_index(inplace=True)
+
+        print(df1)
+
+        df_result=pd.merge(df_all,df1,on=['trade_date','amount_group_rank','pb_group_rank','close_group_rank','code_group'],how='left')
+        df_result=pd.merge(df_result,df2,on=['trade_date','amount_group_rank','pb_group_rank','close_group_rank','code_group'],how='left')
+        df_result=pd.merge(df_result,df3,on=['trade_date','amount_group_rank','pb_group_rank','close_group_rank','code_group'],how='left')
+
+        df_result['GroupRank']=df_result['group_pct_chg'].rank(method='dense',pct=True)
+        df_result['GroupRank_3']=df_result['group_pct_chg_Rank_3'].rank(method='dense',pct=True)
+        df_result['GroupRank_6']=df_result['group_pct_chg_Rank_6'].rank(method='dense',pct=True)
+
+        #df=pd.read_pickle(dfloadpath)
+        ##df=pd.read_csv(dfloadpath,index_col=0,header=0)
+
+        df_result=df_result[['ts_code','trade_date','selfrank','selfrank_Rank_3','selfrank_Rank_6','group_pct_chg','group_pct_chg_Rank_3','group_pct_chg_Rank_6','GroupRank','GroupRank_3','GroupRank_6','code_group']]
+
+        df_result.sort_values(["trade_date","ts_code"] , inplace=True, ascending=True) 
+        df_result.reset_index(inplace=True,drop=True)
+        df_result.to_csv("zzzzzz.csv")
+        
+        print(df_result)
+
+        return df_result
+
+    def create_Groupfeatures6(self,arges):
+
+        flag=arges[0]
+        dfday=[]
+        dflong=[]
+        if flag<0:
+            dfday=arges[1]
+            dflong=arges[2]
+
+        else:
+            features=arges[2]
+            dayfeaturepath=features[0]
+            longfeaturepath=features[1]
+
+            dfday=CSZLUtils.CSZLUtils.Loaddata(dayfeaturepath)
+            dflong=CSZLUtils.CSZLUtils.Loaddata(longfeaturepath)
+
+        #修改显示行列数
+        pd.set_option('display.width', 5000)
+        pd.set_option('display.max_rows', 500)
+        pd.set_option('display.max_columns', 500)
+
+        print(dfday)
+        dfday=dfday[['ts_code','trade_date','amount','pct_chg','pct_chg_3','pct_chg_6','pct_chg_12','pct_chg_24','close']]
+
+        dfday['code_group']=0
+
+        print(dfday)
+
+        dfday.loc[dfday['ts_code'].str.startswith('3')==True,'code_group']=3
+        dfday.loc[dfday['ts_code'].str.startswith('0')==True,'code_group']=0
+        dfday.loc[dfday['ts_code'].str.startswith('6')==True,'code_group']=6
+        dfday.loc[dfday['ts_code'].str.startswith('68')==True,'code_group']=8
+
+        print(dfday)
+
+        dfday['amount_group_rank']=dfday.groupby('trade_date')['amount'].rank(pct=True)
+        dfday['amount_group_rank']=dfday['amount_group_rank']*2.99//1
+
+        dfday['close_group_rank']=dfday.groupby('trade_date')['close'].rank(pct=True)
+        dfday['close_group_rank']=dfday['close_group_rank']*2.99//1
+
+
+        dflong=dflong[['ts_code','trade_date','pb_rank']]
+        dflong['pb_group_rank']=dflong['pb_rank']*2.99//1
+
+        df_all=pd.merge(dfday,dflong,on=['ts_code','trade_date'])
+
+        df_all['selfrank']=df_all.groupby(['trade_date','amount_group_rank','pb_group_rank','close_group_rank','code_group'])['pct_chg'].rank(pct=True)
+        df_all['selfrank_Rank_3']=df_all.groupby(['trade_date','amount_group_rank','pb_group_rank','close_group_rank','code_group'])['pct_chg_3'].rank(pct=True)
+        df_all['selfrank_Rank_6']=df_all.groupby(['trade_date','amount_group_rank','pb_group_rank','close_group_rank','code_group'])['pct_chg_6'].rank(pct=True)
+        df_all['selfrank_Rank_12']=df_all.groupby(['trade_date','amount_group_rank','pb_group_rank','close_group_rank','code_group'])['pct_chg_12'].rank(pct=True)
+        df_all['selfrank_Rank_24']=df_all.groupby(['trade_date','amount_group_rank','pb_group_rank','close_group_rank','code_group'])['pct_chg_24'].rank(pct=True)
+
+        df1=df_all.groupby(['trade_date','amount_group_rank','pb_group_rank','close_group_rank','code_group']).agg({"pct_chg":"mean"})
+        df2=df_all.groupby(['trade_date','amount_group_rank','pb_group_rank','close_group_rank','code_group']).agg({"pct_chg_3":"mean"})
+        df3=df_all.groupby(['trade_date','amount_group_rank','pb_group_rank','close_group_rank','code_group']).agg({"pct_chg_6":"mean"})
+        df4=df_all.groupby(['trade_date','amount_group_rank','pb_group_rank','close_group_rank','code_group']).agg({"pct_chg_12":"mean"})
+        df5=df_all.groupby(['trade_date','amount_group_rank','pb_group_rank','close_group_rank','code_group']).agg({"pct_chg_24":"mean"})
+
+        df1.rename(columns={'pct_chg':'group_pct_chg'},inplace=True)
+        df2.rename(columns={'pct_chg_3':'group_pct_chg_Rank_3'},inplace=True)
+        df3.rename(columns={'pct_chg_6':'group_pct_chg_Rank_6'},inplace=True)
+        df4.rename(columns={'pct_chg_12':'group_pct_chg_Rank_12'},inplace=True)
+        df5.rename(columns={'pct_chg_24':'group_pct_chg_Rank_24'},inplace=True)
+        df1.reset_index(inplace=True)
+        df2.reset_index(inplace=True)
+        df3.reset_index(inplace=True)
+        df4.reset_index(inplace=True)
+        df5.reset_index(inplace=True)
+
+        print(df1)
+
+        df_result=pd.merge(df_all,df1,on=['trade_date','amount_group_rank','pb_group_rank','close_group_rank','code_group'],how='left')
+        df_result=pd.merge(df_result,df2,on=['trade_date','amount_group_rank','pb_group_rank','close_group_rank','code_group'],how='left')
+        df_result=pd.merge(df_result,df3,on=['trade_date','amount_group_rank','pb_group_rank','close_group_rank','code_group'],how='left')
+        df_result=pd.merge(df_result,df4,on=['trade_date','amount_group_rank','pb_group_rank','close_group_rank','code_group'],how='left')
+        df_result=pd.merge(df_result,df5,on=['trade_date','amount_group_rank','pb_group_rank','close_group_rank','code_group'],how='left')
+
+        df_result['GroupRank']=df_result['group_pct_chg'].rank(method='dense',pct=True)
+        df_result['GroupRank_3']=df_result['group_pct_chg_Rank_3'].rank(method='dense',pct=True)
+        df_result['GroupRank_6']=df_result['group_pct_chg_Rank_6'].rank(method='dense',pct=True)
+        df_result['GroupRank_12']=df_result['group_pct_chg_Rank_12'].rank(method='dense',pct=True)
+        df_result['GroupRank_24']=df_result['group_pct_chg_Rank_24'].rank(method='dense',pct=True)
+
+        #df=pd.read_pickle(dfloadpath)
+        ##df=pd.read_csv(dfloadpath,index_col=0,header=0)
+
+        df_result=df_result[['ts_code','trade_date','selfrank','selfrank_Rank_3','selfrank_Rank_6','selfrank_Rank_12','selfrank_Rank_24','group_pct_chg',
+                             'group_pct_chg_Rank_3','group_pct_chg_Rank_6','group_pct_chg_Rank_12','group_pct_chg_Rank_24','GroupRank','GroupRank_3',
+                             'GroupRank_6','GroupRank_12','GroupRank_24','code_group']]
+
+        df_result.sort_values(["trade_date","ts_code"] , inplace=True, ascending=True) 
+        df_result.reset_index(inplace=True,drop=True)
+        df_result.to_csv("zzzzzz.csv")
+        
+        print(df_result)
+
+        return df_result
+
+    def create_Groupfeatures5save(self,arges):
+
+        features=arges[2]
+        dayfeaturepath=features[0]
+        longfeaturepath=features[1]
+
+
+        dfday=CSZLUtils.CSZLUtils.Loaddata(dayfeaturepath)
+        dflong=CSZLUtils.CSZLUtils.Loaddata(longfeaturepath)
+
+        #修改显示行列数
+        pd.set_option('display.width', 5000)
+        pd.set_option('display.max_rows', 500)
+        pd.set_option('display.max_columns', 500)
+
+        print(dfday)
+        dfday=dfday[['ts_code','trade_date','amount','pct_chg','pct_chg_3','pct_chg_6','close']]
+
+        dfday['code_group']=0
+
+        dfday.loc[dfday['ts_code'].str.startswith('3')==True,'code_group']=3
+        dfday.loc[dfday['ts_code'].str.startswith('0')==True,'code_group']=0
+        dfday.loc[dfday['ts_code'].str.startswith('6')==True,'code_group']=6
+        dfday.loc[dfday['ts_code'].str.startswith('68')==True,'code_group']=8
+
+        print(dfday)
+
+        dfday['amount_group_rank']=dfday.groupby('trade_date')['amount'].rank(pct=True)
+        dfday['amount_group_rank']=dfday['amount_group_rank']*2.99//1
+
+        dfday['close_group_rank']=dfday.groupby('trade_date')['close'].rank(pct=True)
+        dfday['close_group_rank']=dfday['close_group_rank']*2.99//1
+
+
+        dflong=dflong[['ts_code','trade_date','pb_rank']]
+        dflong['pb_group_rank']=dflong['pb_rank']*2.99//1
+
+        df_all=pd.merge(dfday,dflong,on=['ts_code','trade_date'])
+
+        df_all['selfrank']=df_all.groupby(['trade_date','amount_group_rank','pb_group_rank','close_group_rank','code_group'])['pct_chg'].rank(pct=True)
+        df_all['selfrank_Rank_3']=df_all.groupby(['trade_date','amount_group_rank','pb_group_rank','close_group_rank','code_group'])['pct_chg_3'].rank(pct=True)
+        df_all['selfrank_Rank_6']=df_all.groupby(['trade_date','amount_group_rank','pb_group_rank','close_group_rank','code_group'])['pct_chg_6'].rank(pct=True)
+
+        df1=df_all.groupby(['trade_date','amount_group_rank','pb_group_rank','close_group_rank','code_group']).agg({"pct_chg":"mean"})
+        df2=df_all.groupby(['trade_date','amount_group_rank','pb_group_rank','close_group_rank','code_group']).agg({"pct_chg_3":"mean"})
+        df3=df_all.groupby(['trade_date','amount_group_rank','pb_group_rank','close_group_rank','code_group']).agg({"pct_chg_6":"mean"})
+
+        df1.rename(columns={'pct_chg':'group_pct_chg'},inplace=True)
+        df2.rename(columns={'pct_chg_3':'group_pct_chg_Rank_3'},inplace=True)
+        df3.rename(columns={'pct_chg_6':'group_pct_chg_Rank_6'},inplace=True)
+        df1.reset_index(inplace=True)
+        df2.reset_index(inplace=True)
+        df3.reset_index(inplace=True)
+
+        print(df1)
+
+        df_result=pd.merge(df_all,df1,on=['trade_date','amount_group_rank','pb_group_rank','close_group_rank','code_group'],how='left')
+        df_result=pd.merge(df_result,df2,on=['trade_date','amount_group_rank','pb_group_rank','close_group_rank','code_group'],how='left')
+        df_result=pd.merge(df_result,df3,on=['trade_date','amount_group_rank','pb_group_rank','close_group_rank','code_group'],how='left')
+
+        df_result['GroupRank']=df_result['group_pct_chg'].rank(method='dense',pct=True)
+        df_result['GroupRank_3']=df_result['group_pct_chg_Rank_3'].rank(method='dense',pct=True)
+        df_result['GroupRank_6']=df_result['group_pct_chg_Rank_6'].rank(method='dense',pct=True)
+
+        #df=pd.read_pickle(dfloadpath)
+        ##df=pd.read_csv(dfloadpath,index_col=0,header=0)
+
+        df_result=df_result[['ts_code','trade_date','selfrank','selfrank_Rank_3','selfrank_Rank_6','group_pct_chg','group_pct_chg_Rank_3','group_pct_chg_Rank_6','GroupRank','GroupRank_3','GroupRank_6','code_group']]
+
+        df_result.sort_values(["trade_date","ts_code"] , inplace=True, ascending=True) 
+        df_result.reset_index(inplace=True,drop=True)
+        df_result.to_csv("zzzzzz.csv")
+        
+        print(df_result)
+
+        return df_result
+
+    def create_Groupfeatures4(self,arges):
+
+        features=arges[2]
+        dayfeaturepath=features[0]
+        longfeaturepath=features[1]
+
+
+        dfday=CSZLUtils.CSZLUtils.Loaddata(dayfeaturepath)
+        dflong=CSZLUtils.CSZLUtils.Loaddata(longfeaturepath)
+
+        #修改显示行列数
+        pd.set_option('display.width', 5000)
+        pd.set_option('display.max_rows', 500)
+        pd.set_option('display.max_columns', 500)
+
+        print(dfday)
+        dfday=dfday[['ts_code','trade_date','amount','pct_chg','pct_chg_3','pct_chg_6','close']]
+
+
+
+        dfday['amount_group_rank']=dfday.groupby('trade_date')['amount'].rank(pct=True)
+        dfday['amount_group_rank']=dfday['amount_group_rank']*2.99//1
+
+        dfday['close_group_rank']=dfday.groupby('trade_date')['close'].rank(pct=True)
+        dfday['close_group_rank']=dfday['close_group_rank']*2.99//1
+
+
+        dflong=dflong[['ts_code','trade_date','pb_rank']]
+        dflong['pb_group_rank']=dflong['pb_rank']*2.99//1
+
+        df_all=pd.merge(dfday,dflong,on=['ts_code','trade_date'])
+
+        df_all['selfrank']=df_all.groupby(['trade_date','amount_group_rank','pb_group_rank','close_group_rank'])['pct_chg'].rank(pct=True)
+        df_all['selfrank_Rank_3']=df_all.groupby(['trade_date','amount_group_rank','pb_group_rank','close_group_rank'])['pct_chg_3'].rank(pct=True)
+        df_all['selfrank_Rank_6']=df_all.groupby(['trade_date','amount_group_rank','pb_group_rank','close_group_rank'])['pct_chg_6'].rank(pct=True)
+        df_all['selfrank_Rank_6']=df_all.groupby(['trade_date','amount_group_rank','pb_group_rank','close_group_rank'])['pct_chg_6'].rank(pct=True)
+        df_all['selfrank_Rank_6']=df_all.groupby(['trade_date','amount_group_rank','pb_group_rank','close_group_rank'])['pct_chg_6'].rank(pct=True)
+
+
+        df1=df_all.groupby(['trade_date','amount_group_rank','pb_group_rank','close_group_rank']).agg({"pct_chg":"mean"})
+        df2=df_all.groupby(['trade_date','amount_group_rank','pb_group_rank','close_group_rank']).agg({"pct_chg_3":"mean"})
+        df3=df_all.groupby(['trade_date','amount_group_rank','pb_group_rank','close_group_rank']).agg({"pct_chg_6":"mean"})
+        df3=df_all.groupby(['trade_date','amount_group_rank','pb_group_rank','close_group_rank']).agg({"pct_chg_6":"mean"})
+        df3=df_all.groupby(['trade_date','amount_group_rank','pb_group_rank','close_group_rank']).agg({"pct_chg_6":"mean"})
+
+        df1.rename(columns={'pct_chg':'group_pct_chg'},inplace=True)
+        df2.rename(columns={'pct_chg_3':'group_pct_chg_Rank_3'},inplace=True)
+        df3.rename(columns={'pct_chg_6':'group_pct_chg_Rank_6'},inplace=True)
+        df3.rename(columns={'pct_chg_6':'group_pct_chg_Rank_6'},inplace=True)
+        df3.rename(columns={'pct_chg_6':'group_pct_chg_Rank_6'},inplace=True)
+
+        df1.reset_index(inplace=True)
+        df2.reset_index(inplace=True)
+        df3.reset_index(inplace=True)
+        df3.reset_index(inplace=True)
+        df3.reset_index(inplace=True)
+
+        print(df1)
+
+        df_result=pd.merge(df_all,df1,on=['trade_date','amount_group_rank','pb_group_rank','close_group_rank'],how='left')
+        df_result=pd.merge(df_result,df2,on=['trade_date','amount_group_rank','pb_group_rank','close_group_rank'],how='left')
+        df_result=pd.merge(df_result,df3,on=['trade_date','amount_group_rank','pb_group_rank','close_group_rank'],how='left')
+
+        df_result['GroupRank']=df_result['group_pct_chg'].rank(method='dense',pct=True)
+        df_result['GroupRank_3']=df_result['group_pct_chg_Rank_3'].rank(method='dense',pct=True)
+        df_result['GroupRank_6']=df_result['group_pct_chg_Rank_6'].rank(method='dense',pct=True)
+
+        #df=pd.read_pickle(dfloadpath)
+        ##df=pd.read_csv(dfloadpath,index_col=0,header=0)
+
+        df_result=df_result[['ts_code','trade_date','selfrank','selfrank_Rank_3','selfrank_Rank_6','group_pct_chg','group_pct_chg_Rank_3','group_pct_chg_Rank_6','GroupRank','GroupRank_3','GroupRank_6']]
+
+        df_result.sort_values(["trade_date","ts_code"] , inplace=True, ascending=True) 
+        df_result.reset_index(inplace=True,drop=True)
+        df_result.to_csv("zzzzzz.csv")
+        
+        print(df_result)
+
+        return df_result
 
     ######创建特征使用的基本方法
     def create_trainingdatasets(self,funname,*args):

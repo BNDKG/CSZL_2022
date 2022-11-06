@@ -26,14 +26,14 @@ if __name__ == '__main__':
 
     elif action=='2':
         #"Today_result.csv"
-        zzzz.RealTimePredict()
+        zzzz.RealTimePredict_FE09c()
         zzzz.Haitong2CSZL()
         zzzz.Todays_action('last_result_real.csv',"Today_result.csv",5,7000)
     elif action=='3':
-        zzzz.BackTesting_static_0515()
+        zzzz.BackTesting_static_0828()
         zzzz.Todays_action('last_result_snowball.csv','Today_NEXT_predict.csv',2,200000)
     elif action=='4':
-        zzzz.BackTesting_static_0515()
+        zzzz.BackTesting_static_0828()
         zzzz.Haitong2CSZL()
         zzzz.Todays_action('last_result_real.csv','Today_NEXT_predict.csv',5,7000)
     elif action=='5':
@@ -54,6 +54,9 @@ if __name__ == '__main__':
         pass
 
     elif action=='8':
+
+        zzzz.Zhaoshang2CSZL_CB()
+        zzzz.Zhaoshang2CSZL()
         zzzz.Haitong2CSZL()
         zzzz.Haitong2CSZL_CB()
 
@@ -62,13 +65,16 @@ if __name__ == '__main__':
 
     elif action=='a':
         zzzz.CBBackTesting_static_0515()
-        zzzz.Haitong2CSZL_CB()
-        zzzz.Todays_action_CB('last_result_real_CB.csv','Today_NEXT_predict_CB.csv',4,200000)
+        #zzzz.Haitong2CSZL_CB()
+        #zzzz.Todays_action_CB('last_result_real_CB.csv','Today_NEXT_predict_CB.csv',4,200000)
+        zzzz.Zhaoshang2CSZL_CB()
+        zzzz.Todays_action_CB('last_result_real_CB_ZS.csv',"Today_NEXT_predict_CB.csv",4,200000)
 
     elif action=='b':
         CSZLUtils.CSZLUtils.changetoqlib()
 
     elif action=='c':
+
         zzzzd=CSZLUtils.CSZLUtils.TimeUpper(2118)
 
         print(zzzzd)

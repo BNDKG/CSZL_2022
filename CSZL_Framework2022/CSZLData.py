@@ -70,7 +70,7 @@ class CSZLData(object):
         dfcolumn=pd.DataFrame(columns=('trade_date','ts_code','up_limit','down_limit'))
         self.updatedatas('Daily_stk_limit.pkl',dfcolumn,self._get_stk_limit)
     def _get_stk_limit(self,trade_date):
-        return self.pro.stk_limit(ts_code='',trade_date=trade_date)
+        return self.pro.stk_limit(ts_code='',trade_date=trade_date,limit=6900)
     @decorator_catch_exception
     def update_moneyflow(self):
         dfcolumn=pd.DataFrame(columns=('ts_code','trade_date','buy_sm_vol','buy_sm_amount','sell_sm_vol',
