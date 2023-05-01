@@ -15,7 +15,7 @@ if __name__ == '__main__':
         print("系统接收参数")
         print("CSZL2022 功能列表：\n 1:BackTesting \n 2:RealTimePredict \n 3:BackTesting_snowball\n"
                " 4:BackTesting_haitong\n 5:ServerRun\n 6:Convertible bond BackTesting\n 7:RealTimePredict_CB\n"
-               " 8:Haitong2CSZL\n 9:PKL2CSV\n a:CB BackTesting_haitong\n b:changetoqlib")
+               " 8:Haitong2CSZL\n 9:PKL2CSV\n a:CB BackTesting_haitong\n b:changetoqlib\n e:opt_test")
         action=input()
 
 
@@ -81,6 +81,19 @@ if __name__ == '__main__':
 
     elif action=='d':
         zzzz.PredictBackRound_CB()
+
+    elif action=='e':
+
+
+        CSZLDataLoader=CSZLData.CSZLData("20200101","20221111")
+        CSZLDataLoader.update_opt()
+
+    elif action=='f':
+
+        zzzz.BackTesting_compare()
+
+        zzzzz=1
+
 
 
     #elif action=='5':

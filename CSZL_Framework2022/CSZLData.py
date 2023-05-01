@@ -86,6 +86,14 @@ class CSZLData(object):
         dfcolumn=pd.DataFrame(columns=('ts_code','trade_date','open','high','low','close','pre_close','change','pct_chg','vol','amount'))
         self.updatedatas('CBDaily.pkl',dfcolumn,self.pro.cb_daily)
 
+    #更新期权数据
+    @decorator_catch_exception
+    def update_opt(self):
+        dfcolumn=pd.DataFrame(columns=('ts_code','trade_date','exchange','pre_settle','pre_close','open','high','low','close','settle','vol','amount','oi'))
+        self.updatedatas('Daily_opt.pkl',dfcolumn,self._get_opt)
+    def _get_opt(self,trade_date):
+        return self.pro.opt_daily(ts_code='',trade_date=trade_date,exchange='SSE')
+
 
     #更新数据通用逻辑
     def updatedatas(self,data_name,dfcolumn,useapi):
@@ -376,9 +384,6 @@ class CSZLDataWithoutDate(object):
     #获取股票列表
     def get_stocklist():
 
-        #000001.SH 上证 000016.SH 50 000688.SH 科创50 000905.SH 中证500 399006.SZ 创业板指
-        #399300.SZ 300 000852.SH 1000 
-
         savedir='./Database'
         #检查目录是否存在
         CSZLUtils.CSZLUtils.mkdir(savedir)
@@ -418,3 +423,26 @@ class CSZLDataWithoutDate(object):
         return savepth
 
         pass
+
+    def get_index_weight(basecode='000905.SH'):
+
+        #000001.SH 上证 000016.SH 50 000688.SH 科创50 000905.SH 中证500 399006.SZ 创业板指
+        #399300.SZ 300 000300.SH 300 000852.SH 1000 
+
+        savedir='./Database/indexdata'
+        #检查目录是否存在
+        CSZLUtils.CSZLUtils.mkdir(savedir)
+
+        f = open('token.txt')
+        token = f.read()     #将txt文件的所有内容读入到字符串str中
+        f.close()
+
+        pro = ts.pro_api(token)
+
+        df = pro.index_weight(index_code=basecode)
+
+        savepth=savedir+'/'+basecode+'weight.csv'
+        df.to_csv(savepth)
+
+
+        return savepth

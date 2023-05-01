@@ -20,16 +20,18 @@ class CSZLWorkflow(object):
         #Default_folder_path='./temp/'
         Default_folder_path='D:/temp2/'
 
+        df_current_indexweight_merge=self.getcurrent_indexweight_all_merge(False)
+
         #zzzz=CSZLData.CSZLData("20220101","20220301")
 
         #zzzz.getDataSet_all(Default_folder_path)
 
-        backtestmode='real'
+        backtestmode='none'
 
         dayA='20130101'
         dayB='20180601'
-        dayC='20220501'
-        dayD='20220930'
+        dayC='20181231'
+        dayD='20230317'
 
         if backtestmode=='reverse':
             dayA='20180601'
@@ -67,6 +69,11 @@ class CSZLWorkflow(object):
             dayC='20220501'
             dayD='20221028'
 
+            dayA='20150101'
+            dayB='20221231'
+            dayC='20220501'
+            dayD='20221231'
+
         zzzz=FE.CSZLFeatureEngineering(dayA,dayB,Default_folder_path)
         trainpath=zzzz.FE09d()
 
@@ -95,9 +102,101 @@ class CSZLWorkflow(object):
 
         curdisplay=CSZLDisplay.CSZLDisplay()
         #curdisplay.Topk_nextopen_trend(resultpath)
-        curdisplay.Topk_nextopen(resultpath)
+        curdisplay.Topk_nextopen_addopt(resultpath)
 
         pass
+
+    def BackTesting_compare(self):
+
+        #Default_folder_path='./temp/'
+        Default_folder_path='D:/temp2/'
+
+        df_current_indexweight_merge=self.getcurrent_indexweight_all_merge(False)
+
+        #zzzz=CSZLData.CSZLData("20220101","20220301")
+
+        #zzzz.getDataSet_all(Default_folder_path)
+
+        backtestmode='small'
+
+        dayA='20150101'
+        dayB='20221231'
+        dayC='20220501'
+        dayD='20221231'
+
+        if backtestmode=='reverse':
+            dayA='20180601'
+            dayB='20220817'
+            dayC='20130101'
+            dayD='20180601'
+
+        elif backtestmode=='little':
+            dayA='20200101'
+            dayB='20200601'
+            dayC='20220101'
+            dayD='20220817'
+
+        elif backtestmode=='nomal':
+            dayA='20130101'
+            dayB='20180601'
+            dayC='20180601'
+            dayD='20220817'
+
+        elif backtestmode=='small':
+            dayA='20170101'
+            dayB='20200601'
+            dayC='20200601'
+            dayD='20220817'
+
+        elif backtestmode=='smallreverse':
+            dayA='20200601'
+            dayB='20220817'
+            dayC='20170101'
+            dayD='20200601'
+
+        elif backtestmode=='real':
+            dayA='20140601'
+            dayB='20220801'
+            dayC='20220501'
+            dayD='20221028'
+
+            dayA='20150101'
+            dayB='20221231'
+            dayC='20220501'
+            dayD='20221231'
+
+        zzzz=FE.CSZLFeatureEngineering(dayA,dayB,Default_folder_path)
+        trainpath=zzzz.FE09d()
+
+        zzzz=FE.CSZLFeatureEngineering(dayC,dayD,Default_folder_path)
+        testpath=zzzz.FE09d()
+
+
+        cur_model=CSZLModel.CSZLModel()
+
+        cur_model_path=cur_model.LGBmodeltrain(trainpath)
+        #resultpath2=cur_model.LGBmodelpredict(trainpath,cur_model_path)
+        resultpath=cur_model.LGBmodelpredict(testpath,cur_model_path)
+
+
+        #cur_model_path2=cur_model.LGBmodelretrain(trainpath,resultpath2)
+        #resultpath3=cur_model.LGBmodelrepredict(testpath,resultpath,cur_model_path2)
+
+        resultpath=cur_model.MixOutputresult_groupbalence(testpath,cur_model_path)
+
+        today_df = pd.read_csv(resultpath,index_col=0,header=0)
+
+        #lastday=today_df['trade_date'].max()
+        #today_df['ts_code']=today_df['ts_code'].apply(lambda x : x[:-3])
+        #copy_df=today_df[today_df['trade_date']==lastday]
+        #copy_df.to_csv("Today_NEXT_predict.csv")
+
+        curdisplay=CSZLDisplay.CSZLDisplay()
+        #curdisplay.Topk_nextopen_trend(resultpath)
+        curdisplay.Topk_nextopen_addopt_comp(resultpath)
+
+        pass
+
 
     def BackTesting_static_0501(self):
 
@@ -653,6 +752,10 @@ class CSZLWorkflow(object):
         pd.set_option('display.max_rows', 500)
         pd.set_option('display.max_columns', 500)
 
+        #添加个指数成分权重
+
+        df_current_indexweight_merge=self.getcurrent_indexweight_all_merge()
+
         if True:
             df_stocklist=pd.read_csv(CSZLData.CSZLDataWithoutDate.get_stocklist(),index_col=0,header=0)
         else:
@@ -671,9 +774,14 @@ class CSZLWorkflow(object):
         #print(df_last)
 
         df=pd.read_csv(Today_result_path,index_col=0,header=0)
-        #删除科创版和北交所以及ST含有的股票
 
-        df=df[df['ts_code']<688000]
+        #加上成分股表示
+        df_indexw=pd.merge(df, df_current_indexweight_merge, how='left', on=['ts_code'])
+        print(df_indexw)
+        df_indexw.to_csv("Today_NEXT_predict_withindex.csv",encoding='utf-8-sig')
+
+        #删除科创版和北交所以及ST含有的股票
+        #df=df[df['ts_code']<688000]
         df=pd.merge(df, df_stocklist_merge, how='left', on=['ts_code'])
         df=df[~df['name'].str.contains('st|ST',na=False)]
         df['mix_rank'].fillna(-99.99, inplace=True)
@@ -732,7 +840,10 @@ class CSZLWorkflow(object):
         df_newset=df_holdset.append(df_choiceset, ignore_index=True)
 
         df_newset=df_newset[['ts_code','trade_date','Shift_1total_mv_rank','0','19','num_rank','close_show','hold','name']]
-        print(df_newset)
+        
+        df_newset_show=pd.merge(df_newset, df_current_indexweight_merge, how='left', on=['ts_code'])
+
+        print(df_newset_show)
         #df_newset['price']=df_newset['close_show']*df_newset['hold']
         #print(df_newset['price'])
 
@@ -766,7 +877,7 @@ class CSZLWorkflow(object):
         pd.set_option('display.max_rows', 500)
         pd.set_option('display.max_columns', 500)
 
-        if True:
+        if False:
             df_stocklist=pd.read_csv(CSZLData.CSZLDataWithoutDate.get_cb_basic(),index_col=0,header=0)
         else:
             df_stocklist=pd.read_csv("./Database/cb_basic.csv",index_col=0,header=0)
@@ -879,6 +990,59 @@ class CSZLWorkflow(object):
                 df_newset.to_csv("temp_result_CB.csv",encoding='utf-8-sig')
 
         pass
+
+    def getcurrent_indexweight(self,indexcode='000905.SH'):
+
+        if(False):
+            #000001.SH 上证 000016.SH 50 000688.SH 科创50 000905.SH 中证500 399006.SZ 创业板指
+            #399300.SZ 300 000300.SH 300 000852.SH 1000 
+            CSZLData.CSZLDataWithoutDate.get_index_weight(indexcode)
+
+
+        index_path='./Database/indexdata/'+indexcode+'weight.csv'
+        index_indexweight=pd.read_csv(index_path,index_col=0,header=0)
+
+        index_indexweight=index_indexweight.sort_values(by=['trade_date'],ascending=False)
+        index_indexweight.reset_index(inplace=True,drop=True)
+
+        datelist=index_indexweight['trade_date'].unique()
+        curmonth=datelist[0]
+
+        index_indexweight=index_indexweight[index_indexweight["trade_date"]==curmonth]
+
+        return index_indexweight
+
+    def getcurrent_indexweight_all(self):
+
+        df_indexw=self.getcurrent_indexweight('000905.SH')
+
+        #df_indexw=df_indexw.append(self.getcurrent_indexweight('000016.SH'))
+        df_indexw=df_indexw.append(self.getcurrent_indexweight('000300.SH'))
+        df_indexw=df_indexw.append(self.getcurrent_indexweight('399006.SZ'))
+
+        df_indexw.reset_index(inplace=True,drop=True)
+
+        return df_indexw
+
+    def getcurrent_indexweight_all_merge(self,changets_code=True):
+
+        current_indexweight=self.getcurrent_indexweight_all()
+
+        current_indexweight=current_indexweight.rename(columns={'con_code':'ts_code',})
+        df_current_indexweight_merge=current_indexweight[['ts_code','index_code']]
+        if(changets_code):
+            df_current_indexweight_merge['ts_code']=df_current_indexweight_merge['ts_code'].map(lambda x : x[:6])
+            df_current_indexweight_merge['ts_code']=df_current_indexweight_merge['ts_code'].fillna(0).apply(pd.to_numeric)
+
+        df_current_indexweight_merge.loc[df_current_indexweight_merge["index_code"]=="000300.SH", "index_code"] = "沪深300"
+        df_current_indexweight_merge.loc[df_current_indexweight_merge["index_code"]=="000905.SH", "index_code"] = "中证500"
+        df_current_indexweight_merge.loc[df_current_indexweight_merge["index_code"]=="000016.SH", "index_code"] = "上证50"
+        df_current_indexweight_merge.loc[df_current_indexweight_merge["index_code"]=="399006.SZ", "index_code"] = "创业版"
+
+        df_current_indexweight_merge.drop_duplicates('ts_code',inplace = True)
+        df_current_indexweight_merge.to_csv("current_indexweight_merge.csv",encoding='utf-8-sig')
+
+        return df_current_indexweight_merge
 
     def update_all(self):
 
