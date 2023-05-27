@@ -48,14 +48,14 @@ class CSZLDisplay(object):
 
         #hold_all=5
         #change_num=1
-        hold_all=15
-        change_num=2
+        hold_all=30
+        change_num=4
         account=100000000
         accountbase=account
         buy_pct=0.9
         Trans_cost=0.997        #千三
         # balance random none
-        choicepolicy="none"
+        choicepolicy="random"
 
         ###添加停牌计算和涨跌停简单策略
 
@@ -241,7 +241,7 @@ class CSZLDisplay(object):
 
 
                 if choicepolicy=="random":                    
-                    buylist = shuffle(buylist,random_state=88)
+                    buylist = shuffle(buylist,random_state=20)
                 elif choicepolicy=="balance":
                     headnum=buynum/20+1
                     
@@ -403,9 +403,9 @@ class CSZLDisplay(object):
 
         #hold_all=5
         #change_num=1
-        hold_all=15
-        change_num=2
-        account=100000000
+        hold_all=30
+        change_num=5
+        account=10000000
         accountbase=account
         buy_pct=0.9
 
@@ -413,7 +413,7 @@ class CSZLDisplay(object):
 
         Trans_cost=0.997        #千三
         # balance random none
-        choicepolicy="none"
+        choicepolicy="random"
 
         ###添加停牌计算和涨跌停简单策略
 
@@ -431,7 +431,7 @@ class CSZLDisplay(object):
         datelist=score_df['trade_date'].unique()
         cur_hold_num=0
         print(datelist)
-        datelist=datelist[datelist>20200101]
+        #datelist=datelist[datelist>20200101]
     
         curMax=0
         curMaxDropDown=0
@@ -613,7 +613,7 @@ class CSZLDisplay(object):
 
 
                 if choicepolicy=="random":                    
-                    buylist = shuffle(buylist,random_state=88)
+                    buylist = shuffle(buylist,random_state=50)
                 elif choicepolicy=="balance":
                     headnum=buynum/20+1
                     
@@ -622,11 +622,14 @@ class CSZLDisplay(object):
                     buylist=test.sort_values(by=['last_mix_rank'])
 
                 #错误示范，预知未来
-                buylist=buylist[buylist['last_amount']>15000]
+                #buylist=buylist[buylist['last_amount']>15000]
+                #buylist=buylist[buylist['Shift_1total_mv_rank']>4]
+                buylist=buylist[buylist['Shift_1total_mv_rank']>16]
                 #avg0=(buylist['last_0'].mean())
-                #buylist=buylist[buylist['last_0']>avg0]
-                #buylist=buylist[buylist['pre_close']>10]
+                #buylist=buylist[buylist['last_0']<avg0*0.75]
+                buylist=buylist[buylist['pre_close']>3]
                 buylist=buylist[buylist['ts_code'].str.startswith('688')==False]
+                buylist=buylist[buylist['ts_code'].str.startswith('8')==False]
                 #buylist.to_csv("comp.csv")
                 #print(buylist)
                 buylist=buylist.tail(buynum)
@@ -659,7 +662,7 @@ class CSZLDisplay(object):
             #print(codelist)
             #codelist_buffer=pd.merge(codelist,cur_merge_df, how='left', on=['ts_code'])
             bufferdf=codelist['buy_amount']*codelist['lastprice']
-            if(cur_date>20220601):
+            if(cur_date>20220101):
                 print(codelist)
             #print(codelist)
 

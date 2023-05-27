@@ -121,7 +121,7 @@ class CSZLModel(object):
         df_all=df_all[df_all['st_or_otherwrong']==1]
         df_all=df_all[df_all['high_stop']==0]
         df_all=df_all[df_all['close']>2]
-        df_all=df_all[df_all['amount']>15000]
+        df_all=df_all[df_all['amount']>5000]
 
         df_all.drop(['st_or_otherwrong','real_price'],axis=1,inplace=True)
 

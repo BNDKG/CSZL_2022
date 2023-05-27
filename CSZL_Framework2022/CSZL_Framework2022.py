@@ -26,14 +26,16 @@ if __name__ == '__main__':
 
     elif action=='2':
         #"Today_result.csv"
-        zzzz.RealTimePredict_FE09c()
+        zzzz.RealTimePredict_FE09d()
         zzzz.Haitong2CSZL()
         zzzz.Todays_action('last_result_real.csv',"Today_result.csv",5,7000)
     elif action=='3':
-        zzzz.BackTesting_static_0828()
+        #zzzz.BackTesting_static_0828()
+        zzzz.BackTesting_static_230502()
         zzzz.Todays_action('last_result_snowball.csv','Today_NEXT_predict.csv',2,200000)
     elif action=='4':
-        zzzz.BackTesting_static_0828()
+        #zzzz.BackTesting_static_0828()
+        zzzz.BackTesting_static_230502()
         zzzz.Haitong2CSZL()
         zzzz.Todays_action('last_result_real.csv','Today_NEXT_predict.csv',5,7000)
     elif action=='5':

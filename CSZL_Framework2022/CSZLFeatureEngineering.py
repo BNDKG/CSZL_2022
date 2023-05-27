@@ -575,6 +575,34 @@ class CSZLFeatureEngineering(object):
 
         return df_joinfeature
 
+    def FE09d_real(self,date):
+
+        #20220415
+        df_dayfeature =self.create_dayfeature5(date)
+        #print(df_featured)
+
+        df_limit =self.create_Limitfeature(date)
+
+        df_long =self.create_Longfeature(date)
+        df_money =self.create_Moneyflowfeature2(date)
+
+        df_group=self.create_Groupfeatures6([-1,df_dayfeature,df_long])
+
+        #函数名，区别数字(例如shift 1 就填入1)，区别函数(例如 Moneyflowpath)
+        df_shift_long=self.create_Shiftfeatures([-1,df_long])
+        df_shift_money=self.create_Shiftfeatures([-1,df_money])
+
+        df_joinfeature=self.create_joinfeatures_real([df_dayfeature,df_limit,df_shift_long,df_shift_money,df_group])
+
+        finalday=df_joinfeature['trade_date'].max()
+        df_joinfeature=df_joinfeature[df_joinfeature['trade_date']==finalday]
+        print(df_joinfeature)
+
+        df_joinfeature.to_csv("Today_Joinfeature.csv")
+
+
+        return df_joinfeature
+
     def FECB01(self):
 
         #20220415

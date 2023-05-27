@@ -40,7 +40,12 @@ class CSZLData(object):
         self.start_date=start_date
         self.end_date=end_date
 
-        self.datez=self.pro.query('trade_cal', start_date=self.start_date, end_date=self.end_date)
+        #self.datez=self.pro.query('trade_cal', start_date=self.start_date, end_date=self.end_date)
+
+        #time.sleep(61)  #有时候接口抽风可能会有bug
+        self.datez=self.pro.trade_cal(exchange='', start_date=self.start_date, end_date=self.end_date)
+        #print(self.datez)
+
 
     #更新全部数据
     def update_all(self):
