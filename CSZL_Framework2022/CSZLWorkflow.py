@@ -20,13 +20,13 @@ class CSZLWorkflow(object):
         #Default_folder_path='./temp/'
         Default_folder_path='D:/temp2/'
 
-        df_current_indexweight_merge=self.getcurrent_indexweight_all_merge(False)
+        df_current_indexweight_merge=self.getcurrent_index_constituents(False)
 
         #zzzz=CSZLData.CSZLData("20220101","20220301")
 
         #zzzz.getDataSet_all(Default_folder_path)
 
-        backtestmode='nomalreverse'
+        backtestmode='nomal'
 
         #dayA='20150101'
         #dayB='20230401'
@@ -48,19 +48,32 @@ class CSZLWorkflow(object):
         elif backtestmode=='little':
             dayA='20200101'
             dayB='20200601'
-            dayC='20220101'
-            dayD='20220817'
+            dayC='20221201'
+            dayD='20230517'
 
         elif backtestmode=='nomal':
             dayA='20130101'
             dayB='20180601'
             dayC='20180601'
             dayD='20230425'
+
         elif backtestmode=='nomalreverse':
             dayA='20180601'
             dayB='20230425'
             dayC='20130101'
             dayD='20180601'
+
+        elif backtestmode=='nomal2':
+            dayA='20150101'
+            dayB='20200601'
+            dayC='20200601'
+            dayD='20230425'
+
+        elif backtestmode=='nomal3':
+            dayA='20190101'
+            dayB='20210125'
+            dayC='20210125'
+            dayD='20230601'
 
         elif backtestmode=='small':
             dayA='20170101'
@@ -90,10 +103,20 @@ class CSZLWorkflow(object):
             dayC='20230501'
             dayD='20231231'
 
+            dayA='20150101'
+            dayB='20230825'
+            dayC='20230618'
+            dayD='20231231'
+
         zzzz=FE.CSZLFeatureEngineering(dayA,dayB,Default_folder_path)
+        #FE09d
+        #FE11b
+        #FE21e
+
         trainpath=zzzz.FE09d()
 
         zzzz=FE.CSZLFeatureEngineering(dayC,dayD,Default_folder_path)
+
         testpath=zzzz.FE09d()
 
 
@@ -127,7 +150,7 @@ class CSZLWorkflow(object):
         #Default_folder_path='./temp/'
         Default_folder_path='D:/temp2/'
 
-        df_current_indexweight_merge=self.getcurrent_indexweight_all_merge(False)
+        df_current_indexweight_merge=self.getcurrent_index_constituents(False)
 
         #zzzz=CSZLData.CSZLData("20220101","20220301")
 
@@ -447,7 +470,7 @@ class CSZLWorkflow(object):
         Default_folder_path='D:/temp2/'
 
         dayA='20150101'#nomal/small
-        dayB='20230401'
+        dayB='20230825'
 
 
         #dayA='20150801'#nomal/small
@@ -871,14 +894,11 @@ class CSZLWorkflow(object):
         ##单个买入额
         #singleamout=1000
 
-        #修改显示行列数
-        pd.set_option('display.width', 5000)
-        pd.set_option('display.max_rows', 500)
-        pd.set_option('display.max_columns', 500)
+        CSZLUtils.CSZLUtils.showmore()
 
         #添加个指数成分权重
 
-        df_current_indexweight_merge=self.getcurrent_indexweight_all_merge()
+        df_current_indexweight_merge=self.getcurrent_index_constituents()
 
         if True:
             df_stocklist=pd.read_csv(CSZLData.CSZLDataWithoutDate.get_stocklist(),index_col=0,header=0)
@@ -895,7 +915,7 @@ class CSZLWorkflow(object):
 
         df_hold=df_last[['ts_code','hold']]
 
-        #print(df_last)
+        print(df_last)
 
         df=pd.read_csv(Today_result_path,index_col=0,header=0)
 
@@ -1004,10 +1024,7 @@ class CSZLWorkflow(object):
         ##单个买入额
         #singleamout=1000
 
-        #修改显示行列数
-        pd.set_option('display.width', 5000)
-        pd.set_option('display.max_rows', 500)
-        pd.set_option('display.max_columns', 500)
+        CSZLUtils.CSZLUtils.showmore()
 
         if False:
             df_stocklist=pd.read_csv(CSZLData.CSZLDataWithoutDate.get_cb_basic(),index_col=0,header=0)
@@ -1156,7 +1173,8 @@ class CSZLWorkflow(object):
 
         return df_indexw
 
-    def getcurrent_indexweight_all_merge(self,changets_code=True):
+    #获取指数成分股
+    def getcurrent_index_constituents(self,changets_code=True):
 
         current_indexweight=self.getcurrent_indexweight_all()
 
@@ -1172,7 +1190,7 @@ class CSZLWorkflow(object):
         df_current_indexweight_merge.loc[df_current_indexweight_merge["index_code"]=="399006.SZ", "index_code"] = "创业版"
 
         df_current_indexweight_merge.drop_duplicates('ts_code',inplace = True)
-        df_current_indexweight_merge.to_csv("current_indexweight_merge.csv",encoding='utf-8-sig')
+        df_current_indexweight_merge.to_csv("current_indexconstituents_merge.csv",encoding='utf-8-sig')
 
         return df_current_indexweight_merge
 
@@ -1191,10 +1209,7 @@ class CSZLWorkflow(object):
         file_name = CSZLUtils.CSZLUtils.getFlist(sourcepath)
         final_name=file_name[-1]
 
-        #修改显示行列数
-        pd.set_option('display.width', 5000)
-        pd.set_option('display.max_rows', 500)
-        pd.set_option('display.max_columns', 500)
+        CSZLUtils.CSZLUtils.showmore()
 
         path = sourcepath+"/"+final_name
         read_excel = pd.read_excel(path,engine='openpyxl')   # 直接使用 read_excel() 方法读取
@@ -1212,7 +1227,7 @@ class CSZLWorkflow(object):
         df_today = df_today[df_today['t']!=False]
         df_today['ts_code'] = df_today['ts_code'].astype(int)
 
-        df_today=df_today[(df_today['ts_code']<100000)|((df_today['ts_code']>300000)&(df_today['ts_code']<400000))|((df_today['ts_code']>600000)&(df_today['ts_code']<700000))]
+        df_today=df_today[(df_today['ts_code']<100000)|((df_today['ts_code']>300000)&(df_today['ts_code']<400000))|((df_today['ts_code']>=600000)&(df_today['ts_code']<700000))]
         df_today=df_today[df_today['avalue']>2000]
 
 
@@ -1228,10 +1243,7 @@ class CSZLWorkflow(object):
         #file_name = CSZLUtils.CSZLUtils.getFlist(sourcepath)
         #final_name=file_name[-1]
 
-        #修改显示行列数
-        pd.set_option('display.width', 5000)
-        pd.set_option('display.max_rows', 500)
-        pd.set_option('display.max_columns', 500)
+        CSZLUtils.CSZLUtils.showmore()
 
         #path = sourcepath+"/"+final_name
 
@@ -1273,10 +1285,7 @@ class CSZLWorkflow(object):
         #file_name = CSZLUtils.CSZLUtils.getFlist(sourcepath)
         #final_name=file_name[-1]
 
-        #修改显示行列数
-        pd.set_option('display.width', 5000)
-        pd.set_option('display.max_rows', 500)
-        pd.set_option('display.max_columns', 500)
+        CSZLUtils.CSZLUtils.showmore()
 
         #path = sourcepath+"/"+final_name
 
@@ -1321,10 +1330,7 @@ class CSZLWorkflow(object):
         file_name = CSZLUtils.CSZLUtils.getFlist(sourcepath)
         final_name=file_name[-1]
 
-        #修改显示行列数
-        pd.set_option('display.width', 5000)
-        pd.set_option('display.max_rows', 500)
-        pd.set_option('display.max_columns', 500)
+        CSZLUtils.CSZLUtils.showmore()
 
         path = sourcepath+"/"+final_name
         read_excel = pd.read_excel(path,engine='openpyxl')   # 直接使用 read_excel() 方法读取

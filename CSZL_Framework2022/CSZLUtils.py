@@ -154,10 +154,7 @@ class CSZLUtils(object):
 
     def changetoqlib():
 
-        #修改显示行列数
-        pd.set_option('display.width', 5000)
-        pd.set_option('display.max_rows', 500)
-        pd.set_option('display.max_columns', 500)
+        CSZLUtils.showmore()
 
         toqlib_df=pd.read_csv('qlib.csv',index_col=0,header=0)
 
@@ -215,6 +212,12 @@ class CSZLUtils(object):
 
         intsdfafsd=6
 
+
+    def showmore():
+        #修改显示行列数
+        pd.set_option('display.width', 5000)
+        pd.set_option('display.max_rows', 500)
+        pd.set_option('display.max_columns', 500)
 
     def TimeUpper(checktime):
         global CurHour

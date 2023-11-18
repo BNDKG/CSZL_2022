@@ -8,6 +8,8 @@ import os
 import sys
 
 from sklearn.externals import joblib
+import catboost
+from catboost import CatBoostClassifier
 
 class CSZLModel(object):
     """description of class"""
@@ -27,6 +29,9 @@ class CSZLModel(object):
 
         #基于使用的模块生成文件名
         pklname=modelfolder+'/'+sys._getframe().f_code.co_name
+        #这里切换模型
+        #LGBmodel_003
+        #Catboostmodel_002
         lgb_model,pklname=self.LGBmodel_003(pklname)
         checkpath=pklname+'_0.pkl'
 
@@ -206,6 +211,77 @@ class CSZLModel(object):
 
         return lgb_model,pklname
 
+    def Catboostmodel_001(self,pklname):
+
+        pklname=pklname+sys._getframe().f_code.co_name
+
+        #weights={0:2,1:1,2:1,3:1,4:1,5:1,6:1,7:1,8:1,9:1,10:1,11:1,12:1,13:1,14:1,15:1,16:1,17:1,18:1,19:2}
+        #weights={0:1,1:1,2:1,3:1,4:1,5:1,6:1,7:1,8:1,9:1,10:1,11:1,12:1,13:1,14:1,15:1,16:1,17:1,18:1,19:1}
+
+        catboost_model = CatBoostClassifier(
+            iterations=100,
+            learning_rate=0.05,
+            depth=6,
+            l2_leaf_reg=1,
+            loss_function='MultiClass',
+            random_seed=42,
+            verbose=10,
+            thread_count=-1,
+            auto_class_weights='Balanced',
+            #weights=None,  # 这里需要提供每个类别的权重
+        )
+
+
+        return catboost_model,pklname
+
+    def Catboostmodel_002(self,pklname):
+
+        pklname=pklname+sys._getframe().f_code.co_name
+
+        #weights={0:2,1:1,2:1,3:1,4:1,5:1,6:1,7:1,8:1,9:1,10:1,11:1,12:1,13:1,14:1,15:1,16:1,17:1,18:1,19:2}
+        #weights={0:1,1:1,2:1,3:1,4:1,5:1,6:1,7:1,8:1,9:1,10:1,11:1,12:1,13:1,14:1,15:1,16:1,17:1,18:1,19:1}
+
+        catboost_model = CatBoostClassifier(
+            iterations=150,
+            learning_rate=0.1,
+            depth=6,
+            l2_leaf_reg=1,
+            loss_function='MultiClass',
+            random_seed=42,
+            verbose=10,
+            thread_count=-1,
+            auto_class_weights='Balanced',
+            #weights=None,  # 这里需要提供每个类别的权重
+        )
+
+
+        return catboost_model,pklname
+
+    def Catboostmodel_005(self,pklname):
+
+        pklname=pklname+sys._getframe().f_code.co_name
+
+        #weights={0:2,1:1,2:1,3:1,4:1,5:1,6:1,7:1,8:1,9:1,10:1,11:1,12:1,13:1,14:1,15:1,16:1,17:1,18:1,19:2}
+        #weights={0:1,1:1,2:1,3:1,4:1,5:1,6:1,7:1,8:1,9:1,10:1,11:1,12:1,13:1,14:1,15:1,16:1,17:1,18:1,19:1}
+
+        catboost_model = CatBoostClassifier(
+            iterations=150,
+            learning_rate=0.1,
+            depth=7,
+            l2_leaf_reg=1,
+            loss_function='MultiClass',
+            random_seed=42,
+            verbose=10,
+            thread_count=-1,
+            auto_class_weights='Balanced',
+            border_count=200,
+            use_best_model=False,
+            #weights=None,  # 这里需要提供每个类别的权重
+        )
+
+
+        return catboost_model,pklname
+
     def LGBmodel_sum20(self,pklname):
 
         pklname=pklname+sys._getframe().f_code.co_name
@@ -273,12 +349,16 @@ class CSZLModel(object):
             X_fit, X_val = train[train_index_list[counter]],train[test_index_list[counter]]
             y_fit, y_val = y_train[train_index_list[counter]], y_train[test_index_list[counter]]    
 
-            usemodel.fit(X_fit, y_fit, eval_metric='multi_error',
-                            eval_set=[(X_val, y_val)], 
-                            #sample_weight=sample_weights,
-                            #eval_sample_weight=[sample_weight_vals],
-                            #categorical_feature=[5,],
-                            verbose=10, early_stopping_rounds=None)
+            #usemodel.fit(X_fit, y_fit, eval_metric='multi_error',
+            #                eval_set=[(X_val, y_val)], 
+            #                #sample_weight=sample_weights,
+            #                #eval_sample_weight=[sample_weight_vals],
+            #                #categorical_feature=[5,],
+            #                verbose=10, early_stopping_rounds=None)
+
+            usemodel.fit(X_fit, y_fit, eval_set=[(X_val, y_val)])
+
+            #X_fit, y_fit, eval_metric='MultiClassError', eval_set=[(X_val, y_val)], verbose=10, early_stopping_rounds=None
 
             savepath_new=pklname+'_'+str(counter)+".pkl"
             joblib.dump(usemodel,savepath_new)     
